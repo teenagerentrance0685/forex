@@ -9,7 +9,7 @@ Tests:
 """
 
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from backend.app.intelligence.intelligence_manager import IntelligenceManager
 from backend.app.intelligence.memory_integration import MemoryIntegration, ContextualTrade
@@ -47,7 +47,7 @@ class TestMemoryIntegration:
         
         trade = ContextualTrade(
             trade_id="test_001",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             regime="bull",
             session="london",
             sentiment="greed",
@@ -319,8 +319,8 @@ class TestCompleteFlow:
         # If allowed, save trade
         if permission['permission'] != 'blocked':
             trade = ContextualTrade(
-                trade_id="test_full_001",
-                timestamp=datetime.utcnow(),
+            trade_id="test_full_001",
+            timestamp=datetime.now(timezone.utc),
                 regime=context.regime.value,
                 session=context.session.value,
                 sentiment=context.sentiment.value,

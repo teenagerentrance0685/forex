@@ -11,7 +11,7 @@ Note: Requires Twitter API credentials for real implementation.
 """
 
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass
 
 
@@ -291,7 +291,7 @@ class MockTwitterReader(TwitterReader):
                 tweet_id="mock_t1",
                 author="@forex_trader",
                 text="EURUSD breaking out! Very bullish momentum incoming $EURUSD #forex",
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
                 likes=1500,
                 retweets=450,
                 sentiment="bullish",
@@ -303,7 +303,7 @@ class MockTwitterReader(TwitterReader):
                 tweet_id="mock_t2",
                 author="@market_news",
                 text="Fed chair signals more rate hikes - bearish for growth stocks $SPX #market",
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
                 likes=3200,
                 retweets=1100,
                 sentiment="bearish",
@@ -315,7 +315,7 @@ class MockTwitterReader(TwitterReader):
                 tweet_id="mock_t3",
                 author="@crypto_analyst",
                 text="Bitcoin consolidating near support level $BTC #crypto #trading",
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
                 likes=680,
                 retweets=210,
                 sentiment="neutral",

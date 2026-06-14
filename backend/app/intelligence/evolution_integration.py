@@ -13,7 +13,7 @@ New capabilities:
 """
 
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 from backend.app.evolution.manager import EvolutionManager
 from backend.app.memory.memory_manager import MemoryManager
@@ -305,6 +305,6 @@ class EvolutionIntegration:
             "context": context.to_dict(),
             "weaknesses": weaknesses,
             "recommendations": recommendations,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "evolution_ready": len(recommendations) > 0,
         }

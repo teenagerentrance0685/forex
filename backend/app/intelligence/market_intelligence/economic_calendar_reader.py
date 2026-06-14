@@ -17,7 +17,7 @@ Sources:
 """
 
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
 from enum import Enum
 
@@ -50,7 +50,7 @@ class EconomicEvent:
     
     def is_upcoming(self, minutes_ahead: int = 120) -> bool:
         """Check if event is upcoming."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         minutes_until = (self.scheduled_time - now).total_seconds() / 60
         return 0 < minutes_until < minutes_ahead
     
@@ -115,7 +115,7 @@ class EconomicCalendarReader:
         Returns:
             Sorted list of upcoming events
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         cutoff = now + timedelta(hours=hours_ahead)
         
         upcoming = [
@@ -137,7 +137,7 @@ class EconomicCalendarReader:
         
         Used for NO_TRADE_ENGINE to determine NO_TRADE windows.
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         cutoff = now + timedelta(minutes=minutes_window)
         
         critical = [
@@ -150,7 +150,7 @@ class EconomicCalendarReader:
 
     def get_high_impact_events_24h(self) -> List[EconomicEvent]:
         """Get all high-impact events in next 24 hours."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         cutoff = now + timedelta(hours=24)
         
         high_impact = [
@@ -177,7 +177,7 @@ class EconomicCalendarReader:
         high_impact = self.get_high_impact_events_24h()
         high_in_next_hour = [
             e for e in high_impact
-            if (e.scheduled_time - datetime.utcnow()).total_seconds() < 3600
+            if (e.scheduled_time - datetime.now(timezone.utc)).total_seconds() < 3600
         ]
         
         if len(high_in_next_hour) > 2:
@@ -216,7 +216,7 @@ class EconomicCalendarReader:
 
     def _load_mock_events(self) -> None:
         """Load mock events for testing."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         
         self.events = [
             EconomicEvent(

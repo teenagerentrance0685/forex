@@ -13,7 +13,7 @@ Evidence flow:
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 
 
@@ -41,7 +41,7 @@ class Evidence:
     evidence_type: EvidenceType
     content: str
     confidence: float  # 0.0 - 1.0
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     tags: List[str] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
@@ -136,8 +136,7 @@ class EvidenceManager:
 
     def clear_old_evidence(self, hours: int = 24) -> int:
         """Remove evidence older than N hours."""
-        cutoff = datetime.utcnow()
-        from datetime import timedelta
+        cutoff = datetime.now(timezone.utc)
         cutoff = cutoff - timedelta(hours=hours)
         
         initial_count = len(self.evidence_store)

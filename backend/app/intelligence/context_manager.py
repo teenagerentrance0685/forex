@@ -19,7 +19,7 @@ Context becomes input to:
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
 from enum import Enum
 
@@ -80,7 +80,7 @@ class TradingContext:
     news_risk: NewsRiskLevel
     memory_score: float  # 0.0-1.0
     confidence: float  # 0.0-1.0
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     evidence_ids: List[str] = field(default_factory=list)
     reasoning: str = ""  # Explanation of how context was derived
 
@@ -240,7 +240,7 @@ class ContextManager:
 
     def _analyze_session(self) -> TradingSession:
         """Determine current trading session based on UTC time."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         hour = now.hour
         
         # Simplified session logic

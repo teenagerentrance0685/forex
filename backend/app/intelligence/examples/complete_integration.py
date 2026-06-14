@@ -10,7 +10,7 @@ Shows full flow:
 6. Next trade uses improved context
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from backend.app.intelligence.intelligence_manager import IntelligenceManager
 from backend.app.intelligence.memory_integration import MemoryIntegration, ContextualTrade
 from backend.app.intelligence.evolution_integration import EvolutionIntegration
@@ -130,7 +130,7 @@ def example_complete_flow():
         
         trade = ContextualTrade(
             trade_id="trade_001",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             regime=context.regime.value,
             session=context.session.value,
             sentiment=context.sentiment.value,

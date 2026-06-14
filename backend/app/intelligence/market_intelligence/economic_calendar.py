@@ -8,7 +8,7 @@ Purpose:
 """
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 from enum import Enum
 
@@ -46,7 +46,7 @@ class EconomicEvent:
 
     def is_upcoming(self, minutes_ahead: int = 60) -> bool:
         """Check if event is upcoming within N minutes."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         minutes_until = (self.scheduled_time - now).total_seconds() / 60
         return 0 < minutes_until < minutes_ahead
 

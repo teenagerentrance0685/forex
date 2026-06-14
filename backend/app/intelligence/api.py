@@ -14,7 +14,7 @@ Endpoints:
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 from backend.app.intelligence.intelligence_manager import get_intelligence_manager
 from backend.app.intelligence.evidence_manager import EvidenceType
@@ -182,7 +182,7 @@ async def check_safe_to_trade():
     
     return {
         "safe_to_trade": safe,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -194,7 +194,7 @@ async def get_evidence_summary():
     
     return {
         "summary": summary,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -210,7 +210,7 @@ async def get_high_confidence_evidence(min_confidence: float = 0.7, limit: int =
     return {
         "evidence": evidence,
         "count": len(evidence),
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -232,5 +232,5 @@ async def cleanup_old_evidence(hours: int = 24):
     return {
         "success": True,
         "removed_count": removed,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }

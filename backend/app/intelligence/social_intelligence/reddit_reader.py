@@ -13,7 +13,7 @@ Sentiment keywords tracked to detect market mood shifts.
 """
 
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 from dataclasses import dataclass
 
@@ -187,7 +187,7 @@ class RedditReader:
             upvotes=submission.score,
             sentiment=sentiment,
             confidence=confidence,
-            timestamp=datetime.fromtimestamp(submission.created_utc),
+            timestamp=datetime.fromtimestamp(submission.created_utc, timezone.utc),
             symbols_mentioned=symbols,
         )
 
@@ -243,7 +243,7 @@ class MockRedditReader(RedditReader):
                 upvotes=1250,
                 sentiment="bullish",
                 confidence=0.85,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 symbols_mentioned=["BTC", "SPY"],
             ),
             RedditPost(
@@ -254,7 +254,7 @@ class MockRedditReader(RedditReader):
                 upvotes=850,
                 sentiment="bearish",
                 confidence=0.75,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 symbols_mentioned=["DXY", "SPX"],
             ),
             RedditPost(
@@ -265,7 +265,7 @@ class MockRedditReader(RedditReader):
                 upvotes=120,
                 sentiment="neutral",
                 confidence=0.6,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 symbols_mentioned=["EURUSD"],
             ),
         ]

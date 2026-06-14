@@ -23,7 +23,7 @@ This context is then fed to:
 5. Evolution system - pattern discovery
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
 
 from .evidence_manager import EvidenceManager, EvidenceType, Evidence
@@ -149,7 +149,7 @@ class IntelligenceManager:
         Returns:
             TradingContext object with all dimensions
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         should_rebuild = (
             force_rebuild or
             self.current_context is None or
@@ -218,7 +218,7 @@ class IntelligenceManager:
         """Get complete Intelligence OS status."""
         context = self.get_current_context()
         return {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "context": context.to_dict(),
             "evidence_count": len(self.evidence_manager.evidence_store),
             "evidence_summary": self.get_evidence_summary(),
