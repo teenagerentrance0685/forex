@@ -16,6 +16,7 @@ dist/
 
 # Generated winners (test artifacts)
 backend/app/memory/winners/
+backend/app/memory/evidence/
 
 # Node modules (frontend)
 node_modules/
