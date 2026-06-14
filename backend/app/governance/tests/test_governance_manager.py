@@ -20,7 +20,7 @@ def test_skill_permission_denied(tmp_path):
             "strategy": "breakout",
             "risk": {"risk": 0.5},
             "capital": {"drawdown": 1, "margin_usage": 10, "free_margin": 80},
-            "session": {"asian_session": true},
+            "session": {"asian_session": True},
         }
     )
 
@@ -47,7 +47,7 @@ def test_risk_validation_rejected(tmp_path):
             "strategy": "breakout",
             "risk": {"risk": 5.0},
             "capital": {"drawdown": 1, "margin_usage": 10, "free_margin": 80},
-            "session": {"asian_session": true},
+            "session": {"asian_session": True},
         }
     )
 
@@ -74,7 +74,7 @@ def test_capital_validation_shutdown(tmp_path):
             "strategy": "breakout",
             "risk": {"risk": 0.5},
             "capital": {"drawdown": 20, "margin_usage": 60, "free_margin": 30},
-            "session": {"asian_session": true},
+            "session": {"asian_session": True},
         }
     )
 
@@ -102,9 +102,9 @@ def test_session_blocked(tmp_path):
             "risk": {"risk": 0.5},
             "capital": {"drawdown": 1, "margin_usage": 10, "free_margin": 80},
             "session": {
-                "asian_session": false,
-                "london_session": false,
-                "new_york_session": false,
+                "asian_session": False,
+                "london_session": False,
+                "new_york_session": False,
             },
         }
     )

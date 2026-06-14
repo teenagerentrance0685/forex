@@ -4,6 +4,7 @@ from .structure_detector import detect_structure
 from .volatility_detector import detect_volatility
 from .momentum_detector import detect_momentum
 from .trend_strength import determine_strength
+from .adapter import analyze_market_state
 
 __all__ = [
     "MockMarketDataAgent",
@@ -12,4 +13,5 @@ __all__ = [
     "detect_volatility",
     "detect_momentum",
     "determine_strength",
+    "analyze_market_state",
 ]
