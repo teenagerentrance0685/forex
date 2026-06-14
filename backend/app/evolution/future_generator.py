@@ -14,23 +14,29 @@ class FutureGenerator:
         if not evidence:
             return futures
 
-        futures.append({
-            "name": "continue_trend",
-            "description": "Market continues the current trend",
-            "confidence": 0.6,
-            "evidence": evidence,
-        })
-        futures.append({
-            "name": "range_expansion",
-            "description": "Market enters a widening range",
-            "confidence": 0.55,
-            "evidence": evidence,
-        })
-        futures.append({
-            "name": "reversal",
-            "description": "Market reverses the current move",
-            "confidence": 0.5,
-            "evidence": evidence,
-        })
+        futures.append(
+            {
+                "name": "continue_trend",
+                "description": "Market continues the current trend",
+                "confidence": 0.6,
+                "evidence": evidence,
+            }
+        )
+        futures.append(
+            {
+                "name": "range_expansion",
+                "description": "Market enters a widening range",
+                "confidence": 0.55,
+                "evidence": evidence,
+            }
+        )
+        futures.append(
+            {
+                "name": "reversal",
+                "description": "Market reverses the current move",
+                "confidence": 0.5,
+                "evidence": evidence,
+            }
+        )
 
         return futures

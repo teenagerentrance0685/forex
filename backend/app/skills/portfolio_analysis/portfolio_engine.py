@@ -9,7 +9,9 @@ from app.skills.portfolio_analysis.risk_matrix import assess_portfolio_risk
 class PortfolioEngine:
     """Portfolio analysis engine with health, risk and metric scoring."""
 
-    def __init__(self, holdings: List[Dict[str, Any]] | None = None, margin_usage: float = 0.0):
+    def __init__(
+        self, holdings: List[Dict[str, Any]] | None = None, margin_usage: float = 0.0
+    ):
         self.holdings = holdings or []
         self.margin_usage = float(margin_usage or 0.0)
 
@@ -62,7 +64,7 @@ class PortfolioEngine:
     def diversification_analysis(self) -> Dict[str, Any]:
         exposures = self.exposure_analysis().get("exposures", {})
         concentration = max(exposures.values()) if exposures else 0.0
-        hhi = sum((v ** 2) for v in exposures.values()) if exposures else 0.0
+        hhi = sum((v**2) for v in exposures.values()) if exposures else 0.0
         diversification_score = round(max(0.0, 1.0 - hhi), 4)
         sector_exposure: Dict[str, float] = defaultdict(float)
         symbol_overlap: Dict[str, float] = defaultdict(float)
@@ -75,8 +77,12 @@ class PortfolioEngine:
             else:
                 symbol_overlap[symbol] += exposure
 
-        sector_overlap = round(max(sector_exposure.values()) if sector_exposure else 0.0, 4)
-        symbol_overlap_score = round(max(symbol_overlap.values()) if symbol_overlap else 0.0, 4)
+        sector_overlap = round(
+            max(sector_exposure.values()) if sector_exposure else 0.0, 4
+        )
+        symbol_overlap_score = round(
+            max(symbol_overlap.values()) if symbol_overlap else 0.0, 4
+        )
         return {
             "n_positions": len(exposures),
             "concentration": round(concentration, 4),
@@ -101,17 +107,25 @@ class PortfolioEngine:
                 price_series[sym] = pd.Series(prices, dtype=float)
 
         if len(price_series) < 2:
-            return {"note": "not enough price series to compute correlation", "correlation_score": 0.0}
+            return {
+                "note": "not enough price series to compute correlation",
+                "correlation_score": 0.0,
+            }
 
         df = pd.DataFrame(price_series)
         returns = df.pct_change().dropna()
         if returns.empty:
-            return {"note": "insufficient data after returns calculation", "correlation_score": 0.0}
+            return {
+                "note": "insufficient data after returns calculation",
+                "correlation_score": 0.0,
+            }
 
         corr = returns.corr()
         triu = corr.where(~np.tril(np.ones(corr.shape, dtype=bool)))
         abs_vals = triu.abs().values[np.triu_indices_from(triu.values, k=1)]
-        correlation_score = float(round(float(abs_vals.mean()) if abs_vals.size else 0.0, 4))
+        correlation_score = float(
+            round(float(abs_vals.mean()) if abs_vals.size else 0.0, 4)
+        )
         corr_dict = {col: corr[col].to_dict() for col in corr.columns}
         correlated_pairs = []
         for i, row in corr.iterrows():
@@ -200,12 +214,14 @@ def analyze_portfolio(portfolio: Dict[str, Any]) -> Dict[str, Any]:
         "correlation_score": correlation.get("correlation_score", 0.0),
         "diversification_score": diversification["diversification_score"],
         "concentration_score": concentration["concentration_score"],
-        "portfolio_health_score": engine.health_score({
-            "concentration_score": concentration["concentration_score"],
-            "correlation_score": correlation.get("correlation_score", 0.0),
-            "diversification_score": diversification["diversification_score"],
-            "margin_usage": engine.margin_usage,
-        }),
+        "portfolio_health_score": engine.health_score(
+            {
+                "concentration_score": concentration["concentration_score"],
+                "correlation_score": correlation.get("correlation_score", 0.0),
+                "diversification_score": diversification["diversification_score"],
+                "margin_usage": engine.margin_usage,
+            }
+        ),
     }
     metrics["portfolio_health_score"] = int(metrics["portfolio_health_score"])
     risk_assessment = assess_portfolio_risk(metrics)

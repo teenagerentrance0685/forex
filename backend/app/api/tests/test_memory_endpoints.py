@@ -40,7 +40,12 @@ def test_save_and_query_memory(tmp_path):
     client.app.state.memory_agent = FileMemoryManager(str(tmp_path / "mem.json"))
 
     # Save generic memory
-    payload = {"kind": "test", "content": {"data": "test-data"}, "memory_type": "long_term", "tags": ["query-test"]}
+    payload = {
+        "kind": "test",
+        "content": {"data": "test-data"},
+        "memory_type": "long_term",
+        "tags": ["query-test"],
+    }
     r = client.post("/api/v1/memory/save", json=payload)
     assert r.status_code == 200
     saved = r.json()["saved_memory"]
@@ -106,7 +111,10 @@ def test_market_insight(tmp_path):
     client.app.state.memory_agent = FileMemoryManager(str(tmp_path / "mem.json"))
 
     # Save short-term memory that should be queryable
-    st_payload = {"content": {"market": "bullish", "signal": "cross"}, "tags": ["market_insight"]}
+    st_payload = {
+        "content": {"market": "bullish", "signal": "cross"},
+        "tags": ["market_insight"],
+    }
     r = client.post("/api/v1/memory/short-term/save", json=st_payload)
     assert r.status_code == 200
 

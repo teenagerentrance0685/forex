@@ -7,7 +7,7 @@ from backend.app.skills.optimization_engine.gene_search import BacktestOptimizer
 
 def optimize_parameters(params: Dict[str, Any]) -> Dict[str, Any]:
     """Adapter for parameter optimization.
-    
+
     Returns JSON-serializable optimization decision.
     """
     optimizer = BacktestOptimizer()

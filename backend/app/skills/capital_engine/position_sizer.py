@@ -1,9 +1,8 @@
 """Capital Engine position sizing and risk management."""
+
 from __future__ import annotations
 
 from typing import Any
-
-from app.core.models import MarketTick
 
 METADATA = {
     "name": "capital_engine",
@@ -17,7 +16,9 @@ class PositionSizer:
     def __init__(self, settings: Any):
         self.settings = settings
 
-    def size_position(self, state: Any, market_state: dict[str, Any]) -> dict[str, float]:
+    def size_position(
+        self, state: Any, market_state: dict[str, Any]
+    ) -> dict[str, float]:
         regime = str(market_state.get("regime", "REGIME_TRANSITION"))
         risk_multiple = self._risk_multiple_for_regime(regime)
         risk_multiple *= self._drawdown_scale(state)
@@ -85,7 +86,9 @@ class PositionSizer:
             return 0.5
         return 1.0
 
-    def _estimate_position_size(self, state: Any, market_state: dict[str, Any], risk_size: float) -> float:
+    def _estimate_position_size(
+        self, state: Any, market_state: dict[str, Any], risk_size: float
+    ) -> float:
         balance = float(getattr(state, "balance", 0.0))
         tick = market_state.get("tick")
         if tick is None:
@@ -99,4 +102,7 @@ class PositionSizer:
         if trade_risk <= 0.0:
             return 0.0
 
-        return min(balance * risk_size / trade_risk, getattr(self.settings, "max_exposure_lots", 0.10))
+        return min(
+            balance * risk_size / trade_risk,
+            getattr(self.settings, "max_exposure_lots", 0.10),
+        )

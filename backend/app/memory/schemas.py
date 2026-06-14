@@ -9,7 +9,12 @@ class MemoryType(str, Enum):
 
 
 class MemoryQuery:
-    def __init__(self, query: str = "", tags: list[str] | None = None, memory_type: MemoryType | None = None):
+    def __init__(
+        self,
+        query: str = "",
+        tags: list[str] | None = None,
+        memory_type: MemoryType | None = None,
+    ):
         self.query = query
         self.tags = tags or []
         self.memory_type = memory_type

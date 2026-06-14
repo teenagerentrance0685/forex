@@ -28,9 +28,15 @@ class WinnerDna:
                 regime_counts[regime] = regime_counts.get(regime, 0) + 1
 
         return {
-            "winning_symbols": sorted(symbol_counts, key=symbol_counts.get, reverse=True),
-            "winning_sessions": sorted(session_counts, key=session_counts.get, reverse=True),
-            "winning_regimes": sorted(regime_counts, key=regime_counts.get, reverse=True),
+            "winning_symbols": sorted(
+                symbol_counts, key=symbol_counts.get, reverse=True
+            ),
+            "winning_sessions": sorted(
+                session_counts, key=session_counts.get, reverse=True
+            ),
+            "winning_regimes": sorted(
+                regime_counts, key=regime_counts.get, reverse=True
+            ),
             "source_count": len(winners),
         }
 

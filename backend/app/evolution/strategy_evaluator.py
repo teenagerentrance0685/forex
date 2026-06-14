@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from statistics import mean
 from typing import Any
 
 from app.memory import MemoryManager
@@ -29,11 +28,20 @@ class StrategyEvaluator:
         winners = len(wins)
         losers = len(losses)
 
-        expectancy = ((gross_profit / winners) if winners else 0.0) * (winners / total_trades) - ((gross_loss / losers) if losers else 0.0) * (losers / total_trades) if total_trades else 0.0
+        expectancy = (
+            ((gross_profit / winners) if winners else 0.0) * (winners / total_trades)
+            - ((gross_loss / losers) if losers else 0.0) * (losers / total_trades)
+            if total_trades
+            else 0.0
+        )
         win_rate = winners / total_trades if total_trades else 0.0
         profit_factor = (gross_profit / gross_loss) if gross_loss else 0.0
         max_drawdown = portfolio_data.get("max_drawdown", 0.0)
-        recovery_factor = (portfolio_data.get("total_return", 0.0) / max_drawdown) if max_drawdown else 0.0
+        recovery_factor = (
+            (portfolio_data.get("total_return", 0.0) / max_drawdown)
+            if max_drawdown
+            else 0.0
+        )
 
         return {
             "expectancy": expectancy,

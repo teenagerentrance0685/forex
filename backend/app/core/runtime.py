@@ -5,7 +5,7 @@ from pathlib import Path
 
 from app.brain.fsm import FsmBrainAgent
 from app.core.config import get_settings
-from app.core.models import FsmState, RobotState, RobotStatus, WinnerGene
+from app.core.models import FsmState, RobotState, WinnerGene
 from app.core.state_store import GeneStore, JsonStateStore
 from app.strategy.hedge_engine import HedgeEngine
 from app.governance import GovernanceManager
@@ -14,7 +14,6 @@ from app.skills.optimization_engine.gene_search import BacktestOptimizer
 from app.memory import MemoryManager
 from app.skills.shared.memory import list_winner_genes, promote_gene, remember_gene
 from app.identity.identity_manager import IdentityManager
-from backend.app.skills.capital_engine.adapter import capital_analysis
 from backend.app.skills.capital_engine.position_sizer import PositionSizer
 from backend.app.skills.execution_engine.order_router import ExecutionAdapterAgent
 from backend.app.skills.market_analysis.mock_market import MockMarketDataAgent

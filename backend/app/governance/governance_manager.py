@@ -34,7 +34,7 @@ class GovernanceManager:
         return GovernanceDecision(
             allowed=allowed,
             reason="Skill permission granted" if allowed else "Skill permission denied",
-            rule="permissions"
+            rule="permissions",
         )
 
     def is_strategy_allowed(self, strategy_name: str) -> GovernanceDecision:
@@ -42,7 +42,7 @@ class GovernanceManager:
         return GovernanceDecision(
             allowed=allowed,
             reason="Strategy allowed" if allowed else "Strategy blocked",
-            rule="strategy_rules"
+            rule="strategy_rules",
         )
 
     def validate_risk(self, risk_data: Dict[str, Any]) -> GovernanceDecision:
@@ -52,12 +52,10 @@ class GovernanceManager:
             return GovernanceDecision(
                 allowed=False,
                 reason=f"Risk {current_risk}% exceeds max allowed {max_risk}%",
-                rule="risk_rules"
+                rule="risk_rules",
             )
         return GovernanceDecision(
-            allowed=True,
-            reason="Risk within allowed range",
-            rule="risk_rules"
+            allowed=True, reason="Risk within allowed range", rule="risk_rules"
         )
 
     def validate_capital(self, capital_data: Dict[str, Any]) -> GovernanceDecision:
@@ -72,40 +70,41 @@ class GovernanceManager:
             return GovernanceDecision(
                 allowed=False,
                 reason=f"Drawdown {drawdown}% exceeds max allowed {max_drawdown}%",
-                rule="capital_rules"
+                rule="capital_rules",
             )
 
         if margin_usage > max_margin:
             return GovernanceDecision(
                 allowed=False,
                 reason=f"Margin usage {margin_usage}% exceeds max allowed {max_margin}%",
-                rule="capital_rules"
+                rule="capital_rules",
             )
 
         if free_margin < min_free:
             return GovernanceDecision(
                 allowed=False,
                 reason=f"Free margin {free_margin}% below minimum {min_free}%",
-                rule="capital_rules"
+                rule="capital_rules",
             )
 
         return GovernanceDecision(
-            allowed=True,
-            reason="Capital protections pass",
-            rule="capital_rules"
+            allowed=True, reason="Capital protections pass", rule="capital_rules"
         )
 
     def validate_session(self, session_data: Dict[str, Any]) -> GovernanceDecision:
-        if not any(self.session_rules.get(session, False) for session in ["asian_session", "london_session", "new_york_session"]):
+        if not any(
+            self.session_rules.get(session, False)
+            for session in ["asian_session", "london_session", "new_york_session"]
+        ):
             return GovernanceDecision(
                 allowed=False,
                 reason="No trading sessions are enabled",
-                rule="session_rules"
+                rule="session_rules",
             )
         return GovernanceDecision(
             allowed=True,
             reason="Session permissions allow trading",
-            rule="session_rules"
+            rule="session_rules",
         )
 
     def approve_trade(self, signal: Dict[str, Any]) -> GovernanceDecision:
@@ -130,7 +129,5 @@ class GovernanceManager:
             return session_check
 
         return GovernanceDecision(
-            allowed=True,
-            reason="Governance approved trade",
-            rule="governance"
+            allowed=True, reason="Governance approved trade", rule="governance"
         )

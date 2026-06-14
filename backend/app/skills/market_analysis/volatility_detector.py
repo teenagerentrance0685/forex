@@ -5,7 +5,9 @@ from typing import Dict
 import pandas as pd
 
 
-def detect_volatility(ohlcv: pd.DataFrame, atr_period: int = 14, lookback: int = 21) -> Dict[str, object]:
+def detect_volatility(
+    ohlcv: pd.DataFrame, atr_period: int = 14, lookback: int = 21
+) -> Dict[str, object]:
     """Calculate ATR-based volatility characteristics."""
     if ohlcv.empty or len(ohlcv) < atr_period + 2:
         return {

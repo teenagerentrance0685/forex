@@ -5,7 +5,9 @@ from __future__ import annotations
 from app.core.models import FsmState, RiskDecision, RobotState, RobotStatus
 
 
-def determine_next_state(state: RobotState, risk: RiskDecision, has_cycle: bool, surplus_active: bool = False) -> tuple[FsmState, RobotStatus]:
+def determine_next_state(
+    state: RobotState, risk: RiskDecision, has_cycle: bool, surplus_active: bool = False
+) -> tuple[FsmState, RobotStatus]:
     if not risk.allowed:
         if risk.action == "FREEZE":
             return FsmState.FREEZE, RobotStatus.FROZEN

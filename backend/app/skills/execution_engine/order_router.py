@@ -3,6 +3,7 @@
 This module encapsulates the core order execution flow: determining order status,
 building broker order IDs, and logging execution events.
 """
+
 from __future__ import annotations
 
 import json
@@ -10,7 +11,10 @@ from pathlib import Path
 
 from app.core.config import Settings
 from app.core.models import Order, OrderStatus
-from backend.app.skills.execution_engine.adapter import build_broker_order_id, determine_order_status
+from backend.app.skills.execution_engine.adapter import (
+    build_broker_order_id,
+    determine_order_status,
+)
 
 
 class ExecutionAdapterAgent:
@@ -24,7 +28,12 @@ class ExecutionAdapterAgent:
         """Execute an order: determine status and build broker order ID."""
         order.status = determine_order_status(self.settings)
         if order.status == OrderStatus.REJECTED:
-            self._log({"event": "ORDER_REJECTED_LIVE_DISABLED", "order": order.model_dump(mode="json")})
+            self._log(
+                {
+                    "event": "ORDER_REJECTED_LIVE_DISABLED",
+                    "order": order.model_dump(mode="json"),
+                }
+            )
             return order
 
         order.broker_order_id = build_broker_order_id()

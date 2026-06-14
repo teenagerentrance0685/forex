@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
@@ -22,7 +20,9 @@ def test_scan_detects_yaml_in_skills(tmp_path):
 
     backend_agent = tmp_path / "backend" / "app" / "agents" / "bad_agent.py"
     # create a class Agent with >80 lines and an import from skills
-    lines = ["from skills.some_skill import helper\n", "class BadAgent:\n"] + ["    def line(self):\n        pass\n" for _ in range(100)]
+    lines = ["from skills.some_skill import helper\n", "class BadAgent:\n"] + [
+        "    def line(self):\n        pass\n" for _ in range(100)
+    ]
     write_file(backend_agent, "\n".join(lines))
 
     mgr = IdentityManager()
@@ -31,4 +31,6 @@ def test_scan_detects_yaml_in_skills(tmp_path):
     assert any(str(bad_skill) in p for p in violations["yaml_in_skills"])
     assert any(str(bad_skill) in p for p in violations["file_open_in_skills"])
     assert any(str(backend_agent) in p for p in violations["agents_with_large_classes"])
-    assert any(str(backend_agent) in p for p in violations["imports_from_skills_in_agents"])
+    assert any(
+        str(backend_agent) in p for p in violations["imports_from_skills_in_agents"]
+    )

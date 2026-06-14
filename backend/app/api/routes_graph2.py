@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 
 from fastapi import APIRouter, Query, Response
 from typing import Optional
@@ -19,7 +18,11 @@ DEFAULT_STORE_PATH = settings.graph_path
 
 @router.get("/status")
 def graph_status():
-    return {"ok": True, "nodes": len(graph_agent.nodes), "edges": len(graph_agent.edges)}
+    return {
+        "ok": True,
+        "nodes": len(graph_agent.nodes),
+        "edges": len(graph_agent.edges),
+    }
 
 
 @router.post("/register/{node_id}")
@@ -48,7 +51,9 @@ def populate_graph(
     graph_agent.clear()
     graph_agent.populate_from_skills(skills_root)
     if include_imports:
-        graph_agent.populate_from_imports(".", skills_root=skills_root, backend_root=backend_root)
+        graph_agent.populate_from_imports(
+            ".", skills_root=skills_root, backend_root=backend_root
+        )
     return {
         "ok": True,
         "nodes": len(graph_agent.nodes),

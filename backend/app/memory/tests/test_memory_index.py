@@ -11,7 +11,9 @@ def test_build_and_search(tmp_path: Path):
     mem_dir = tmp_path / "memory"
     (mem_dir / "winners").mkdir(parents=True)
     p = mem_dir / "winners" / "sample.json"
-    p.write_text(json.dumps({"symbol": "EURUSD", "strategy_id": "s1", "result": "Winner"}))
+    p.write_text(
+        json.dumps({"symbol": "EURUSD", "strategy_id": "s1", "result": "Winner"})
+    )
 
     idx = MemoryIndex(root=tmp_path)
     idx.build()

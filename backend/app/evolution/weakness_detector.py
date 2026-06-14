@@ -16,35 +16,47 @@ class WeaknessDetector:
 
         performance = evidence.get("performance", {})
         if performance.get("drawdown", 0) > 10:
-            weaknesses.append({
-                "type": "regime_weakness",
-                "cause": "drawdown_exceeds_threshold",
-                "details": performance,
-                "confidence": 0.85,
-            })
+            weaknesses.append(
+                {
+                    "type": "regime_weakness",
+                    "cause": "drawdown_exceeds_threshold",
+                    "details": performance,
+                    "confidence": 0.85,
+                }
+            )
 
         if performance.get("win_rate", 1.0) < 0.5:
-            weaknesses.append({
-                "type": "strategy_weakness",
-                "cause": "low_win_rate",
-                "details": performance,
-                "confidence": 0.8,
-            })
+            weaknesses.append(
+                {
+                    "type": "strategy_weakness",
+                    "cause": "low_win_rate",
+                    "details": performance,
+                    "confidence": 0.8,
+                }
+            )
 
-        if evidence.get("session") and evidence["session"].get("name") == "asian_session" and performance.get("win_rate", 1.0) < 0.5:
-            weaknesses.append({
-                "type": "session_weakness",
-                "cause": "asian_session_underperformance",
-                "details": evidence,
-                "confidence": 0.75,
-            })
+        if (
+            evidence.get("session")
+            and evidence["session"].get("name") == "asian_session"
+            and performance.get("win_rate", 1.0) < 0.5
+        ):
+            weaknesses.append(
+                {
+                    "type": "session_weakness",
+                    "cause": "asian_session_underperformance",
+                    "details": evidence,
+                    "confidence": 0.75,
+                }
+            )
 
         if evidence.get("symbol") and performance.get("win_rate", 1.0) < 0.5:
-            weaknesses.append({
-                "type": "symbol_weakness",
-                "cause": "symbol_underperformance",
-                "details": evidence,
-                "confidence": 0.7,
-            })
+            weaknesses.append(
+                {
+                    "type": "symbol_weakness",
+                    "cause": "symbol_underperformance",
+                    "details": evidence,
+                    "confidence": 0.7,
+                }
+            )
 
         return weaknesses

@@ -58,7 +58,9 @@ def status() -> dict[str, Any]:
 @router.post("/connect")
 def connect(payload: ConnectRequest) -> dict[str, Any]:
     if not payload.access_token and not (payload.app_id and payload.app_secret):
-        raise HTTPException(status_code=400, detail="Provide an access_token or app credentials")
+        raise HTTPException(
+            status_code=400, detail="Provide an access_token or app credentials"
+        )
 
     CTRADER_SESSION.update(
         {
@@ -99,7 +101,12 @@ def disconnect() -> dict[str, Any]:
 @router.get("/account")
 def account() -> dict[str, Any]:
     if not CTRADER_SESSION.get("connected"):
-        return {"broker": "ctrader", "connected": False, "account_id": None, "message": "Not connected"}
+        return {
+            "broker": "ctrader",
+            "connected": False,
+            "account_id": None,
+            "message": "Not connected",
+        }
 
     return {
         "broker": "ctrader",
@@ -116,18 +123,28 @@ def account() -> dict[str, Any]:
 
 @router.get("/positions")
 def positions() -> dict[str, Any]:
-    return {"broker": "ctrader", "connected": bool(CTRADER_SESSION.get("connected")), "positions": []}
+    return {
+        "broker": "ctrader",
+        "connected": bool(CTRADER_SESSION.get("connected")),
+        "positions": [],
+    }
 
 
 @router.get("/orders")
 def orders() -> dict[str, Any]:
-    return {"broker": "ctrader", "connected": bool(CTRADER_SESSION.get("connected")), "orders": []}
+    return {
+        "broker": "ctrader",
+        "connected": bool(CTRADER_SESSION.get("connected")),
+        "orders": [],
+    }
 
 
 @router.post("/order")
 def place_order(payload: OrderRequest) -> dict[str, Any]:
     if not CTRADER_SESSION.get("connected"):
-        raise HTTPException(status_code=400, detail="Connect to cTrader before placing orders")
+        raise HTTPException(
+            status_code=400, detail="Connect to cTrader before placing orders"
+        )
 
     return {
         "broker": "ctrader",
@@ -144,9 +161,16 @@ def place_order(payload: OrderRequest) -> dict[str, Any]:
 @router.delete("/order/{order_id}")
 def cancel_order(order_id: str) -> dict[str, Any]:
     if not CTRADER_SESSION.get("connected"):
-        raise HTTPException(status_code=400, detail="Connect to cTrader before cancelling orders")
+        raise HTTPException(
+            status_code=400, detail="Connect to cTrader before cancelling orders"
+        )
 
-    return {"broker": "ctrader", "success": True, "order_id": order_id, "message": "cTrader cancellation stub"}
+    return {
+        "broker": "ctrader",
+        "success": True,
+        "order_id": order_id,
+        "message": "cTrader cancellation stub",
+    }
 
 
 @router.get("/quote")

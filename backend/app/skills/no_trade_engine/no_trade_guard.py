@@ -1,4 +1,5 @@
 """No Trade Engine guard implementation for the HedgeMath OS skill registry."""
+
 from __future__ import annotations
 
 from datetime import time, timezone
@@ -133,7 +134,9 @@ class NoTradeGuardAgent:
 
     def _is_spread_expansion(self, market_state: dict[str, Any]) -> bool:
         tick = market_state.get("tick")
-        max_spread = getattr(self.settings, "max_spread_points", 25.0) * getattr(self.settings, "tick_size", 0.00001)
+        max_spread = getattr(self.settings, "max_spread_points", 25.0) * getattr(
+            self.settings, "tick_size", 0.00001
+        )
         return tick is not None and tick.spread > max_spread
 
     def _is_market_chaos(self, market_state: dict[str, Any]) -> bool:
@@ -143,7 +146,9 @@ class NoTradeGuardAgent:
         return float(getattr(state, "drawdown_pct", 0.0)) > 15.0
 
     def _is_loss_streak(self, state: Any) -> bool:
-        return getattr(state, "consecutive_loss", 0) >= getattr(self.settings, "max_consecutive_loss", 5)
+        return getattr(state, "consecutive_loss", 0) >= getattr(
+            self.settings, "max_consecutive_loss", 5
+        )
 
     def _is_over_exposure(self, state: Any) -> bool:
         return float(getattr(state, "margin_level_pct", 9999.0)) < 25.0
@@ -155,5 +160,7 @@ class NoTradeGuardAgent:
         return float(getattr(state, "session_performance", 1.0)) < 0.8
 
 
-def evaluate_no_trade(settings: Any, state: Any, market_state: dict[str, Any]) -> RiskDecision:
+def evaluate_no_trade(
+    settings: Any, state: Any, market_state: dict[str, Any]
+) -> RiskDecision:
     return NoTradeGuardAgent(settings).evaluate(state, market_state)

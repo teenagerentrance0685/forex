@@ -8,15 +8,23 @@ from typing import Any
 from .report_generator import discover_weaknesses, generate_report
 from .statistics import calculate_statistics
 
-
 REGIMES = {"Trending", "Ranging", "Volatile", "News", "Low Liquidity"}
 
 
 class BacktestEngine:
     def __init__(self, memory_root: str | Path | None = None):
-        self.memory_root = Path(memory_root) if memory_root else Path(__file__).resolve().parents[2] / "memory"
+        self.memory_root = (
+            Path(memory_root)
+            if memory_root
+            else Path(__file__).resolve().parents[2] / "memory"
+        )
 
-    def run(self, strategy: dict[str, Any], market_data: dict[str, Any], config: dict[str, Any] | None = None) -> dict[str, Any]:
+    def run(
+        self,
+        strategy: dict[str, Any],
+        market_data: dict[str, Any],
+        config: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         config = config or {}
         starting_balance = float(config.get("starting_balance", 10000.0))
         trades = self._trades(strategy, market_data)
@@ -59,7 +67,9 @@ class BacktestEngine:
         path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         return path
 
-    def _trades(self, strategy: dict[str, Any], market_data: dict[str, Any]) -> list[dict[str, Any]]:
+    def _trades(
+        self, strategy: dict[str, Any], market_data: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         if "trades" in market_data:
             return list(market_data.get("trades") or [])
 
@@ -72,9 +82,20 @@ class BacktestEngine:
         for index, price in enumerate(prices):
             signal = signals[index] if index < len(signals) else "hold"
             if signal == "buy" and open_trade is None:
-                open_trade = {"direction": "buy", "entry": price, "size": size, "entry_index": index}
+                open_trade = {
+                    "direction": "buy",
+                    "entry": price,
+                    "size": size,
+                    "entry_index": index,
+                }
             elif signal == "sell" and open_trade is not None:
-                open_trade.update({"exit": price, "exit_index": index, "regime": self._regime_at(market_data, index)})
+                open_trade.update(
+                    {
+                        "exit": price,
+                        "exit_index": index,
+                        "regime": self._regime_at(market_data, index),
+                    }
+                )
                 trades.append(open_trade)
                 open_trade = None
 
@@ -84,17 +105,29 @@ class BacktestEngine:
         by_regime: dict[str, dict[str, Any]] = {}
         for trade in trades:
             regime = str(trade.get("regime") or "Unknown")
-            profit = float(trade.get("profit", 0.0)) if "profit" in trade else self._trade_profit(trade)
-            summary = by_regime.setdefault(regime, {"trades": 0, "wins": 0, "profit": 0.0})
+            profit = (
+                float(trade.get("profit", 0.0))
+                if "profit" in trade
+                else self._trade_profit(trade)
+            )
+            summary = by_regime.setdefault(
+                regime, {"trades": 0, "wins": 0, "profit": 0.0}
+            )
             summary["trades"] += 1
             summary["wins"] += 1 if profit > 0 else 0
             summary["profit"] += profit
 
         for summary in by_regime.values():
-            summary["win_rate"] = round(summary["wins"] / summary["trades"], 4) if summary["trades"] else 0.0
+            summary["win_rate"] = (
+                round(summary["wins"] / summary["trades"], 4)
+                if summary["trades"]
+                else 0.0
+            )
             summary["profit"] = round(summary["profit"], 4)
 
-        ranked = sorted(by_regime.items(), key=lambda item: item[1]["profit"], reverse=True)
+        ranked = sorted(
+            by_regime.items(), key=lambda item: item[1]["profit"], reverse=True
+        )
         return {
             "by_regime": by_regime,
             "best_regime": ranked[0][0] if ranked else None,
@@ -102,7 +135,9 @@ class BacktestEngine:
             "known_regimes": sorted(REGIMES),
         }
 
-    def _build_curves(self, trades: list[dict[str, Any]], starting_balance: float) -> dict[str, list[float]]:
+    def _build_curves(
+        self, trades: list[dict[str, Any]], starting_balance: float
+    ) -> dict[str, list[float]]:
         balance = starting_balance
         peak = starting_balance
         equity_curve = [round(balance, 4)]
@@ -116,7 +151,9 @@ class BacktestEngine:
 
         return {"equity_curve": equity_curve, "drawdown_curve": drawdown_curve}
 
-    def _build_evidence(self, strategy: dict[str, Any], result: dict[str, Any]) -> list[dict[str, Any]]:
+    def _build_evidence(
+        self, strategy: dict[str, Any], result: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         return [
             {
                 "strategy": strategy.get("name", "unknown"),
@@ -146,5 +183,11 @@ class BacktestEngine:
         return (exit_price - entry) * size * multiplier
 
 
-def run_backtest(strategy: dict[str, Any], market_data: dict[str, Any], config: dict[str, Any] | None = None) -> dict[str, Any]:
-    return BacktestEngine().run(strategy=strategy, market_data=market_data, config=config)
+def run_backtest(
+    strategy: dict[str, Any],
+    market_data: dict[str, Any],
+    config: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return BacktestEngine().run(
+        strategy=strategy, market_data=market_data, config=config
+    )

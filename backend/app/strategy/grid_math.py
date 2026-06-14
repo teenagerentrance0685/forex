@@ -3,7 +3,14 @@ from __future__ import annotations
 from app.core.models import GridState
 
 
-def calculate_grid(symbol: str, base_price: float, current_price: float, step_size: float, x_level: int, tick_size: float) -> GridState:
+def calculate_grid(
+    symbol: str,
+    base_price: float,
+    current_price: float,
+    step_size: float,
+    x_level: int,
+    tick_size: float,
+) -> GridState:
     upper_level = base_price + step_size * x_level
     lower_level = base_price - step_size * x_level
     return GridState(

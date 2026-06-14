@@ -73,4 +73,9 @@ def _shutdown():
 
 @app.get("/health")
 def health():
-    return {"ok": True, "app": settings.app_name, "broker_mode": settings.broker_mode, "live_enabled": settings.allow_live_execution}
+    return {
+        "ok": True,
+        "app": settings.app_name,
+        "broker_mode": settings.broker_mode,
+        "live_enabled": settings.allow_live_execution,
+    }

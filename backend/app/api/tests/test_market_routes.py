@@ -24,7 +24,11 @@ def test_detect_market_regime():
     assert response.status_code == 200
     payload = response.json()
     assert "regime_analysis" in payload
-    assert payload["regime_analysis"]["structure"]["structure"] in {"HH_HL", "LL_LH", "SIDEWAY"}
+    assert payload["regime_analysis"]["structure"]["structure"] in {
+        "HH_HL",
+        "LL_LH",
+        "SIDEWAY",
+    }
 
 
 def test_detect_market_structure():
@@ -121,4 +125,7 @@ def test_validate_market_ohlcv_accepts_timezone_aware_strings():
     assert payload["valid"] is True
     assert "normalized_timestamps" in payload
     # normalized timestamps should end with Z (UTC)
-    assert all(ts.endswith("+00:00") or ts.endswith("Z") for ts in payload["normalized_timestamps"])
+    assert all(
+        ts.endswith("+00:00") or ts.endswith("Z")
+        for ts in payload["normalized_timestamps"]
+    )

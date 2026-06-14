@@ -28,6 +28,7 @@ from .evidence_manager import Evidence, EvidenceType, EvidenceManager
 
 class MarketRegime(Enum):
     """Market regime classification."""
+
     STRONG_BULL = "strong_bull"
     BULL = "bull"
     NEUTRAL = "neutral"
@@ -37,6 +38,7 @@ class MarketRegime(Enum):
 
 class TradingSession(Enum):
     """Trading sessions."""
+
     ASIA = "asia"  # UTC 0-8
     LONDON = "london"  # UTC 8-16
     NEWYORK = "newyork"  # UTC 13-21
@@ -46,6 +48,7 @@ class TradingSession(Enum):
 
 class SentimentLevel(Enum):
     """Market sentiment."""
+
     EXTREME_FEAR = "extreme_fear"
     FEAR = "fear"
     NEUTRAL = "neutral"
@@ -55,6 +58,7 @@ class SentimentLevel(Enum):
 
 class NewsRiskLevel(Enum):
     """Economic news risk."""
+
     NO_TRADE = "no_trade"  # High impact events upcoming
     HIGH = "high"  # Important events
     MEDIUM = "medium"
@@ -65,7 +69,7 @@ class NewsRiskLevel(Enum):
 class TradingContext:
     """
     Trading context object - input before taking any trade.
-    
+
     Each field represents a dimension of market understanding:
     - regime: Overall market direction
     - session: Time-of-day factor
@@ -74,6 +78,7 @@ class TradingContext:
     - memory_score: Historical success in similar contexts
     - confidence: Overall confidence in this context assessment
     """
+
     regime: MarketRegime
     session: TradingSession
     sentiment: SentimentLevel
@@ -102,22 +107,24 @@ class TradingContext:
         # NO_TRADE news risk = block
         if self.news_risk == NewsRiskLevel.NO_TRADE:
             return False
-        
+
         # Extreme fear + strong bear = risky
-        if (self.sentiment == SentimentLevel.EXTREME_FEAR and
-            self.regime == MarketRegime.STRONG_BEAR):
+        if (
+            self.sentiment == SentimentLevel.EXTREME_FEAR
+            and self.regime == MarketRegime.STRONG_BEAR
+        ):
             return False
-        
+
         # Low confidence = block
         if self.confidence < 0.5:
             return False
-        
+
         return True
 
     def get_risk_level(self) -> str:
         """Classify overall risk of trading in this context."""
         risk_score = 0.0
-        
+
         # Regime contributes to risk
         regime_risk = {
             MarketRegime.STRONG_BULL: -0.2,  # Lower risk
@@ -127,7 +134,7 @@ class TradingContext:
             MarketRegime.STRONG_BEAR: 0.2,  # Higher risk
         }
         risk_score += regime_risk.get(self.regime, 0.0)
-        
+
         # Sentiment contributes
         sentiment_risk = {
             SentimentLevel.EXTREME_FEAR: 0.3,
@@ -137,7 +144,7 @@ class TradingContext:
             SentimentLevel.EXTREME_GREED: 0.25,
         }
         risk_score += sentiment_risk.get(self.sentiment, 0.0)
-        
+
         # News risk
         news_risk_score = {
             NewsRiskLevel.NO_TRADE: 1.0,
@@ -146,10 +153,10 @@ class TradingContext:
             NewsRiskLevel.LOW: 0.0,
         }
         risk_score += news_risk_score.get(self.news_risk, 0.0)
-        
+
         # Normalize by confidence
         risk_score = max(0.0, min(1.0, risk_score)) * (1 - (1 - self.confidence) * 0.5)
-        
+
         if risk_score < 0.2:
             return "low"
         elif risk_score < 0.5:
@@ -161,7 +168,7 @@ class TradingContext:
 class ContextManager:
     """
     Builds trading context from evidence sources.
-    
+
     Flow:
     Evidence (social, market, document, etc.)
         ↓
@@ -182,7 +189,7 @@ class ContextManager:
         """Build complete trading context from all evidence sources."""
         # Get recent evidence
         evidence = self.evidence_manager.get_recent_evidence(limit=100)
-        
+
         # Analyze each dimension
         regime = self._analyze_regime(evidence)
         session = self._analyze_session()
@@ -191,7 +198,7 @@ class ContextManager:
         memory_score = self._calculate_memory_score(evidence)
         confidence = self._calculate_confidence(evidence, regime, session, sentiment)
         reasoning = self._build_reasoning(regime, session, sentiment, news_risk)
-        
+
         self.current_context = TradingContext(
             regime=regime,
             session=session,
@@ -201,32 +208,29 @@ class ContextManager:
             confidence=confidence,
             reasoning=reasoning,
         )
-        
+
         return self.current_context
 
     def _analyze_regime(self, evidence: List[Evidence]) -> MarketRegime:
         """Analyze market regime from social + market intelligence."""
         # Filter social sentiment evidence
         social_evidence = [
-            e for e in evidence
-            if e.evidence_type == EvidenceType.SOCIAL
+            e for e in evidence if e.evidence_type == EvidenceType.SOCIAL
         ]
-        
+
         if not social_evidence:
             return MarketRegime.NEUTRAL
-        
+
         # Calculate weighted sentiment
         bullish_score = sum(
-            e.confidence for e in social_evidence
-            if "bull" in e.content.lower()
+            e.confidence for e in social_evidence if "bull" in e.content.lower()
         )
         bearish_score = sum(
-            e.confidence for e in social_evidence
-            if "bear" in e.content.lower()
+            e.confidence for e in social_evidence if "bear" in e.content.lower()
         )
-        
+
         diff = bullish_score - bearish_score
-        
+
         if diff > 0.5:
             return MarketRegime.STRONG_BULL
         elif diff > 0.2:
@@ -242,7 +246,7 @@ class ContextManager:
         """Determine current trading session based on UTC time."""
         now = datetime.now(timezone.utc)
         hour = now.hour
-        
+
         # Simplified session logic
         if 0 <= hour < 8:
             return TradingSession.ASIA
@@ -258,20 +262,23 @@ class ContextManager:
     def _analyze_sentiment(self, evidence: List[Evidence]) -> SentimentLevel:
         """Analyze community sentiment from social intelligence."""
         social_evidence = [
-            e for e in evidence
-            if e.evidence_type == EvidenceType.SOCIAL
+            e for e in evidence if e.evidence_type == EvidenceType.SOCIAL
         ]
-        
+
         if not social_evidence:
             return SentimentLevel.NEUTRAL
-        
-        avg_confidence = sum(e.confidence for e in social_evidence) / len(social_evidence)
-        
+
+        avg_confidence = sum(e.confidence for e in social_evidence) / len(
+            social_evidence
+        )
+
         # Heuristic: higher confidence in social = more extreme sentiment
         if avg_confidence > 0.85:
             fear_count = sum(1 for e in social_evidence if "fear" in e.content.lower())
-            greed_count = sum(1 for e in social_evidence if "greed" in e.content.lower())
-            
+            greed_count = sum(
+                1 for e in social_evidence if "greed" in e.content.lower()
+            )
+
             if fear_count > greed_count:
                 return SentimentLevel.EXTREME_FEAR
             else:
@@ -282,22 +289,21 @@ class ContextManager:
                 return SentimentLevel.FEAR
             else:
                 return SentimentLevel.GREED
-        
+
         return SentimentLevel.NEUTRAL
 
     def _analyze_news_risk(self, evidence: List[Evidence]) -> NewsRiskLevel:
         """Analyze economic calendar and news risk."""
         market_evidence = [
-            e for e in evidence
-            if e.evidence_type == EvidenceType.MARKET
+            e for e in evidence if e.evidence_type == EvidenceType.MARKET
         ]
-        
+
         if not market_evidence:
             return NewsRiskLevel.LOW
-        
+
         # Check for high-impact news markers
         high_impact = [e for e in market_evidence if e.confidence > 0.85]
-        
+
         if len(high_impact) > 3:
             return NewsRiskLevel.NO_TRADE
         elif len(high_impact) > 1:
@@ -325,15 +331,15 @@ class ContextManager:
         """Calculate overall confidence in context assessment."""
         if not evidence:
             return 0.3  # Low confidence if no evidence
-        
+
         avg_evidence_confidence = sum(e.confidence for e in evidence) / len(evidence)
-        
+
         # Confidence influenced by:
         # 1. Quality of input evidence
         # 2. Diversity of sources
         source_types = set(e.evidence_type for e in evidence)
         source_diversity = len(source_types) / len(EvidenceType)
-        
+
         confidence = (avg_evidence_confidence * 0.7) + (source_diversity * 0.3)
         return max(0.0, min(1.0, confidence))
 

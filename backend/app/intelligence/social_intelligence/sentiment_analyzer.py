@@ -5,12 +5,13 @@ Output: "bullish" | "bearish" | "neutral"
 Confidence: 0.0 - 1.0
 """
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from enum import Enum
 
 
 class SentimentScore(Enum):
     """Sentiment scoring."""
+
     VERY_NEGATIVE = -1.0
     NEGATIVE = -0.5
     NEUTRAL = 0.0
@@ -23,20 +24,30 @@ class SentimentAnalyzer:
 
     # Keywords for bullish sentiment
     BULLISH_KEYWORDS = {
-        "bull": 0.3, "bullish": 0.3,
-        "moon": 0.4, "pump": 0.3,
-        "buy": 0.2, "long": 0.2,
-        "strong": 0.2, "surge": 0.3,
-        "breakout": 0.25, "rally": 0.3,
+        "bull": 0.3,
+        "bullish": 0.3,
+        "moon": 0.4,
+        "pump": 0.3,
+        "buy": 0.2,
+        "long": 0.2,
+        "strong": 0.2,
+        "surge": 0.3,
+        "breakout": 0.25,
+        "rally": 0.3,
     }
 
     # Keywords for bearish sentiment
     BEARISH_KEYWORDS = {
-        "bear": 0.3, "bearish": 0.3,
-        "crash": 0.4, "dump": 0.3,
-        "sell": 0.2, "short": 0.2,
-        "weak": 0.2, "decline": 0.3,
-        "breakdown": 0.25, "plunge": 0.3,
+        "bear": 0.3,
+        "bearish": 0.3,
+        "crash": 0.4,
+        "dump": 0.3,
+        "sell": 0.2,
+        "short": 0.2,
+        "weak": 0.2,
+        "decline": 0.3,
+        "breakdown": 0.25,
+        "plunge": 0.3,
     }
 
     # Intensifiers
@@ -45,7 +56,7 @@ class SentimentAnalyzer:
     def analyze(self, text: str) -> Dict[str, Any]:
         """
         Analyze sentiment of text.
-        
+
         Returns:
             {
                 "sentiment": "bullish|bearish|neutral",

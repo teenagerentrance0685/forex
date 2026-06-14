@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Dict, List
 
 BASE = Path(__file__).resolve().parent
 
@@ -22,7 +22,14 @@ class MemoryIndex:
                 data = json.loads(path.read_text())
             except Exception:
                 continue
-            for key in ("symbol", "strategy_id", "setup", "regime", "session", "result"):
+            for key in (
+                "symbol",
+                "strategy_id",
+                "setup",
+                "regime",
+                "session",
+                "result",
+            ):
                 if key in data:
                     val = str(data[key])
                     self.index.setdefault((key, val), []).append(str(path))

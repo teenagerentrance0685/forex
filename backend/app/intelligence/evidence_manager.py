@@ -2,7 +2,7 @@
 Evidence Manager - Normalize all intelligence sources into standardized evidence format.
 
 Evidence flow:
-- Source (social, market, document, GitHub) 
+- Source (social, market, document, GitHub)
   ↓
 - Parse & Extract
   ↓
@@ -19,6 +19,7 @@ from enum import Enum
 
 class EvidenceType(Enum):
     """Types of evidence that feed into context."""
+
     MARKET = "market"  # Economic news, calendar events
     SOCIAL = "social"  # Sentiment from Reddit, Twitter
     DOCUMENT = "document"  # Research papers, books
@@ -29,6 +30,7 @@ class EvidenceType(Enum):
 
 class ConfidenceLevel(Enum):
     """Evidence confidence levels."""
+
     LOW = 0.3
     MEDIUM = 0.6
     HIGH = 0.85
@@ -37,6 +39,7 @@ class ConfidenceLevel(Enum):
 @dataclass
 class Evidence:
     """Standardized evidence object."""
+
     source: str  # reddit, twitter, economic_calendar, github, paper_title, etc.
     evidence_type: EvidenceType
     content: str
@@ -48,7 +51,9 @@ class Evidence:
     def __post_init__(self):
         """Validate confidence is between 0 and 1."""
         if not 0.0 <= self.confidence <= 1.0:
-            raise ValueError(f"Confidence must be between 0 and 1, got {self.confidence}")
+            raise ValueError(
+                f"Confidence must be between 0 and 1, got {self.confidence}"
+            )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
@@ -66,7 +71,7 @@ class Evidence:
 class EvidenceManager:
     """
     Centralized evidence normalizer.
-    
+
     Ensures all intelligence sources use consistent schema:
     {
         "source": str,
@@ -111,7 +116,7 @@ class EvidenceManager:
         filtered = self.evidence_store
         if evidence_type:
             filtered = [e for e in filtered if e.evidence_type == evidence_type]
-        
+
         # Sort by timestamp descending and return latest N
         return sorted(filtered, key=lambda e: e.timestamp, reverse=True)[:limit]
 
@@ -124,26 +129,20 @@ class EvidenceManager:
         filtered = self.evidence_store
         if evidence_type:
             filtered = [e for e in filtered if e.evidence_type == evidence_type]
-        
+
         return [e for e in filtered if e.confidence >= min_confidence]
 
     def get_evidence_by_tags(self, tags: List[str]) -> List[Evidence]:
         """Get evidence that has any of the specified tags."""
-        return [
-            e for e in self.evidence_store
-            if any(tag in e.tags for tag in tags)
-        ]
+        return [e for e in self.evidence_store if any(tag in e.tags for tag in tags)]
 
     def clear_old_evidence(self, hours: int = 24) -> int:
         """Remove evidence older than N hours."""
         cutoff = datetime.now(timezone.utc)
         cutoff = cutoff - timedelta(hours=hours)
-        
+
         initial_count = len(self.evidence_store)
-        self.evidence_store = [
-            e for e in self.evidence_store
-            if e.timestamp > cutoff
-        ]
+        self.evidence_store = [e for e in self.evidence_store if e.timestamp > cutoff]
         return initial_count - len(self.evidence_store)
 
     def get_evidence_summary(self) -> Dict[str, Any]:
@@ -155,11 +154,14 @@ class EvidenceManager:
                 for t in EvidenceType
             },
             "average_confidence": (
-                sum(e.confidence for e in self.evidence_store) / len(self.evidence_store)
-                if self.evidence_store else 0.0
+                sum(e.confidence for e in self.evidence_store)
+                / len(self.evidence_store)
+                if self.evidence_store
+                else 0.0
             ),
             "latest_timestamp": (
                 max(e.timestamp for e in self.evidence_store).isoformat()
-                if self.evidence_store else None
+                if self.evidence_store
+                else None
             ),
         }

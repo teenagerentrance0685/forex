@@ -34,7 +34,9 @@ def exposure_risk_level(exposure_score: float) -> str:
     return RiskLevel.CRITICAL.value
 
 
-def correlation_risk_level(correlation_score: float, duplicated_exposure: float = 0.0) -> str:
+def correlation_risk_level(
+    correlation_score: float, duplicated_exposure: float = 0.0
+) -> str:
     base_score = correlation_score
     if base_score < 0.25:
         level = RiskLevel.LOW
@@ -56,8 +58,15 @@ def correlation_risk_level(correlation_score: float, duplicated_exposure: float 
     return level.value
 
 
-def concentration_risk_level(concentration_score: float, sector_overlap: float, currency_overlap: float, same_direction_ratio: float = 0.0) -> str:
-    risk_input = max(concentration_score, sector_overlap, currency_overlap, same_direction_ratio)
+def concentration_risk_level(
+    concentration_score: float,
+    sector_overlap: float,
+    currency_overlap: float,
+    same_direction_ratio: float = 0.0,
+) -> str:
+    risk_input = max(
+        concentration_score, sector_overlap, currency_overlap, same_direction_ratio
+    )
     if risk_input < 0.25:
         return RiskLevel.LOW.value
     if risk_input < 0.5:

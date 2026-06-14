@@ -6,7 +6,9 @@ from backend.app.skills.risk_engine.risk_guard import RiskGuardAgent
 def test_risk_guard_blocks_drawdown():
     settings = Settings(max_drawdown_pct=10)
     guard = RiskGuardAgent(settings)
-    state = RobotState(robot_id="r", symbol="EURUSD", broker="mock", magic_number=1, drawdown_pct=11)
+    state = RobotState(
+        robot_id="r", symbol="EURUSD", broker="mock", magic_number=1, drawdown_pct=11
+    )
     decision = guard.evaluate(state)
     assert decision.allowed is False
     assert decision.action == "FREEZE"

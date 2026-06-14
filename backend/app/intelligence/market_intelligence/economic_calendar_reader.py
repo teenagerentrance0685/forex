@@ -24,6 +24,7 @@ from enum import Enum
 
 class EventImportance(Enum):
     """Event importance level."""
+
     LOW = 1
     MEDIUM = 2
     HIGH = 3
@@ -33,31 +34,32 @@ class EventImportance(Enum):
 @dataclass
 class EconomicEvent:
     """Economic calendar event."""
+
     event_id: str
     event_name: str
     country: str  # USD, EUR, GBP, JPY, etc.
     importance: EventImportance
     scheduled_time: datetime
-    
+
     # Event data
     forecast: Optional[float] = None
     previous: Optional[float] = None
     actual: Optional[float] = None
-    
+
     # Impact details
     currency_pairs_affected: List[str] = None
     direction: Optional[str] = None  # up | down | sideways | unknown
-    
+
     def is_upcoming(self, minutes_ahead: int = 120) -> bool:
         """Check if event is upcoming."""
         now = datetime.now(timezone.utc)
         minutes_until = (self.scheduled_time - now).total_seconds() / 60
         return 0 < minutes_until < minutes_ahead
-    
+
     def is_released(self) -> bool:
         """Check if actual data is released."""
         return self.actual is not None
-    
+
     def get_surprise(self) -> Optional[float]:
         """Get forecast vs actual surprise."""
         if self.actual is None or self.forecast is None:
@@ -68,7 +70,7 @@ class EconomicEvent:
 class EconomicCalendarReader:
     """
     Monitor economic calendar events.
-    
+
     Note: Requires API integration with Trading Economics or similar.
     This is a template showing the interface.
     """
@@ -107,83 +109,86 @@ class EconomicCalendarReader:
     ) -> List[EconomicEvent]:
         """
         Get upcoming economic events.
-        
+
         Args:
             hours_ahead: Look ahead N hours
             importance_filter: Filter by importance level
-            
+
         Returns:
             Sorted list of upcoming events
         """
         now = datetime.now(timezone.utc)
         cutoff = now + timedelta(hours=hours_ahead)
-        
-        upcoming = [
-            e for e in self.events
-            if now < e.scheduled_time <= cutoff
-        ]
-        
+
+        upcoming = [e for e in self.events if now < e.scheduled_time <= cutoff]
+
         if importance_filter:
-            upcoming = [
-                e for e in upcoming
-                if e.importance == importance_filter
-            ]
-        
+            upcoming = [e for e in upcoming if e.importance == importance_filter]
+
         return sorted(upcoming, key=lambda e: e.scheduled_time)
 
-    def get_critical_events_window(self, minutes_window: int = 30) -> List[EconomicEvent]:
+    def get_critical_events_window(
+        self, minutes_window: int = 30
+    ) -> List[EconomicEvent]:
         """
         Get critical events within N minutes.
-        
+
         Used for NO_TRADE_ENGINE to determine NO_TRADE windows.
         """
         now = datetime.now(timezone.utc)
         cutoff = now + timedelta(minutes=minutes_window)
-        
+
         critical = [
-            e for e in self.events
-            if (now < e.scheduled_time <= cutoff and
-                e.importance == EventImportance.CRITICAL)
+            e
+            for e in self.events
+            if (
+                now < e.scheduled_time <= cutoff
+                and e.importance == EventImportance.CRITICAL
+            )
         ]
-        
+
         return sorted(critical, key=lambda e: e.scheduled_time)
 
     def get_high_impact_events_24h(self) -> List[EconomicEvent]:
         """Get all high-impact events in next 24 hours."""
         now = datetime.now(timezone.utc)
         cutoff = now + timedelta(hours=24)
-        
+
         high_impact = [
-            e for e in self.events
-            if (now < e.scheduled_time <= cutoff and
-                e.importance in [EventImportance.HIGH, EventImportance.CRITICAL])
+            e
+            for e in self.events
+            if (
+                now < e.scheduled_time <= cutoff
+                and e.importance in [EventImportance.HIGH, EventImportance.CRITICAL]
+            )
         ]
-        
+
         return sorted(high_impact, key=lambda e: e.scheduled_time)
 
     def should_enter_no_trade_mode(self) -> tuple[bool, str]:
         """
         Determine if robot should enter NO_TRADE mode.
-        
+
         Returns:
             (should_block, reason)
         """
         critical = self.get_critical_events_window(minutes_window=60)
-        
+
         if critical:
             event_names = ", ".join(e.event_name for e in critical)
             return True, f"Critical events in next 60 min: {event_names}"
-        
+
         high_impact = self.get_high_impact_events_24h()
         high_in_next_hour = [
-            e for e in high_impact
+            e
+            for e in high_impact
             if (e.scheduled_time - datetime.now(timezone.utc)).total_seconds() < 3600
         ]
-        
+
         if len(high_in_next_hour) > 2:
             event_names = ", ".join(e.event_name for e in high_in_next_hour)
             return True, f"Multiple high-impact events coming: {event_names}"
-        
+
         return False, ""
 
     def get_affected_pairs(self, event: EconomicEvent) -> List[str]:
@@ -194,11 +199,15 @@ class EconomicCalendarReader:
     def format_event_summary(self) -> Dict[str, Any]:
         """Format calendar summary for display."""
         upcoming_24h = self.get_high_impact_events_24h()
-        
+
         return {
             "total_events_24h": len(upcoming_24h),
-            "critical_events": len([e for e in upcoming_24h if e.importance == EventImportance.CRITICAL]),
-            "high_impact_events": len([e for e in upcoming_24h if e.importance == EventImportance.HIGH]),
+            "critical_events": len(
+                [e for e in upcoming_24h if e.importance == EventImportance.CRITICAL]
+            ),
+            "high_impact_events": len(
+                [e for e in upcoming_24h if e.importance == EventImportance.HIGH]
+            ),
             "events": [
                 {
                     "name": e.event_name,
@@ -217,7 +226,7 @@ class EconomicCalendarReader:
     def _load_mock_events(self) -> None:
         """Load mock events for testing."""
         now = datetime.now(timezone.utc)
-        
+
         self.events = [
             EconomicEvent(
                 event_id="fed_1",

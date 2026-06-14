@@ -56,7 +56,10 @@ METADATA = SkillMetadata(
             required=True,
         )
     ],
-    dependencies=["skills.market_analysis.schemas.TrendResult", "skills.market_analysis.schemas.TrendDirection"],
+    dependencies=[
+        "skills.market_analysis.schemas.TrendResult",
+        "skills.market_analysis.schemas.TrendDirection",
+    ],
     examples=[
         {
             "input": {"prices": [1.0, 1.01, 1.02], "sensitivity": 0.005},

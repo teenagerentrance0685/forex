@@ -73,7 +73,11 @@ def test_correlation_pairs_are_reported_for_highly_correlated_holdings():
     portfolio = {
         "holdings": [
             {"symbol": "EURUSD", "value": 50000, "prices": [1, 1.02, 1.04, 1.06, 1.08]},
-            {"symbol": "GBPUSD", "value": 30000, "prices": [1.5, 1.53, 1.56, 1.59, 1.62]},
+            {
+                "symbol": "GBPUSD",
+                "value": 30000,
+                "prices": [1.5, 1.53, 1.56, 1.59, 1.62],
+            },
             {"symbol": "USDJPY", "value": 20000, "prices": [110, 111, 112, 113, 114]},
         ],
         "margin_usage": 0.1,
@@ -160,7 +164,11 @@ def test_currency_exposure_in_forex_pairs():
     currency_exp = exposure["currency_exposure"]
     assert isinstance(currency_exp, dict)
     assert currency_exp.get("USD", 0.0) > 0.0
-    assert currency_exp.get("EUR", 0.0) > 0.0 or currency_exp.get("GBP", 0.0) > 0.0 or currency_exp.get("JPY", 0.0) > 0.0
+    assert (
+        currency_exp.get("EUR", 0.0) > 0.0
+        or currency_exp.get("GBP", 0.0) > 0.0
+        or currency_exp.get("JPY", 0.0) > 0.0
+    )
 
 
 def test_risk_assessment_zero_metrics():
@@ -215,7 +223,10 @@ def test_diversification_overlap_scores():
 
     assert diversification["sector_overlap"] > 0.0
     assert diversification["symbol_overlap"] > 0.0
-    assert diversification["sector_overlap"] >= diversification["symbol_overlap"] or diversification["symbol_overlap"] >= diversification["sector_overlap"]
+    assert (
+        diversification["sector_overlap"] >= diversification["symbol_overlap"]
+        or diversification["symbol_overlap"] >= diversification["sector_overlap"]
+    )
 
 
 def test_risk_classification_high_risk():

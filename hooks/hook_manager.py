@@ -13,7 +13,11 @@ CloseHook = Callable[[HookContext], CloseHookResult]
 
 class HookManager:
     def __init__(self, hooks_directory: str | Path | None = None):
-        self.hooks_directory = Path(hooks_directory) if hooks_directory else Path(__file__).resolve().parent
+        self.hooks_directory = (
+            Path(hooks_directory)
+            if hooks_directory
+            else Path(__file__).resolve().parent
+        )
         self.before_signal_hooks: list[SignalHook] = []
         self.after_signal_hooks: list[SignalHook] = []
         self.before_trade_hooks: list[TradeHook] = []
@@ -24,13 +28,27 @@ class HookManager:
         self._discover_hooks()
 
     def _discover_hooks(self) -> None:
-        self.before_signal_hooks = self._load_hooks(self.hooks_directory / "before_signal", "before_signal_hook")
-        self.after_signal_hooks = self._load_hooks(self.hooks_directory / "after_signal", "after_signal_hook")
-        self.before_trade_hooks = self._load_hooks(self.hooks_directory / "before_trade", "before_trade_hook")
-        self.after_trade_hooks = self._load_hooks(self.hooks_directory / "after_trade", "after_trade_hook")
-        self.before_close_hooks = self._load_hooks(self.hooks_directory / "before_close", "before_close_hook")
-        self.after_close_hooks = self._load_hooks(self.hooks_directory / "after_close", "after_close_hook")
-        self.after_backtest_hooks = self._load_hooks(self.hooks_directory / "after_backtest", "after_backtest_hook")
+        self.before_signal_hooks = self._load_hooks(
+            self.hooks_directory / "before_signal", "before_signal_hook"
+        )
+        self.after_signal_hooks = self._load_hooks(
+            self.hooks_directory / "after_signal", "after_signal_hook"
+        )
+        self.before_trade_hooks = self._load_hooks(
+            self.hooks_directory / "before_trade", "before_trade_hook"
+        )
+        self.after_trade_hooks = self._load_hooks(
+            self.hooks_directory / "after_trade", "after_trade_hook"
+        )
+        self.before_close_hooks = self._load_hooks(
+            self.hooks_directory / "before_close", "before_close_hook"
+        )
+        self.after_close_hooks = self._load_hooks(
+            self.hooks_directory / "after_close", "after_close_hook"
+        )
+        self.after_backtest_hooks = self._load_hooks(
+            self.hooks_directory / "after_backtest", "after_backtest_hook"
+        )
 
     def run_before_signal(self, context: HookContext) -> list[SignalHookResult]:
         return [hook(context) for hook in self.before_signal_hooks]
@@ -74,7 +92,9 @@ class HookManager:
     def register_after_backtest_hook(self, hook: SignalHook) -> None:
         self.after_backtest_hooks.append(hook)
 
-    def _load_hooks(self, folder: Path, hook_name: str) -> list[Callable[[HookContext], Any]]:
+    def _load_hooks(
+        self, folder: Path, hook_name: str
+    ) -> list[Callable[[HookContext], Any]]:
         hooks: list[Callable[[HookContext], Any]] = []
         if not folder.exists():
             return hooks

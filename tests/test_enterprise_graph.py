@@ -20,7 +20,9 @@ def test_graph_endpoints(tmp_path):
     assert r.status_code == 200
     graph = r.json()
     assert "nodes" in graph and "nodeA" in graph["nodes"]
-    assert "edges" in graph and any(e["src"] == "nodeA" and e["dst"] == "nodeB" for e in graph["edges"]) 
+    assert "edges" in graph and any(
+        e["src"] == "nodeA" and e["dst"] == "nodeB" for e in graph["edges"]
+    )
 
     # subgraph by node
     r = client.get("/api/v1/graph/subgraph", params={"node": "nodeA"})
@@ -44,11 +46,15 @@ def test_graph_endpoints(tmp_path):
 
     graph = client.get("/api/v1/graph/dump").json()
     assert any(
-        e["src"] == "backend.app.guard.risk_guard" and e["dst"] == "skills.risk_management" and e["label"] == "capability"
+        e["src"] == "backend.app.guard.risk_guard"
+        and e["dst"] == "skills.risk_management"
+        and e["label"] == "capability"
         for e in graph["edges"]
     )
     assert any(
-        e["src"].startswith("skills.") and e["dst"].startswith("skills.") and e["label"] == "capability"
+        e["src"].startswith("skills.")
+        and e["dst"].startswith("skills.")
+        and e["label"] == "capability"
         for e in graph["edges"]
     )
 

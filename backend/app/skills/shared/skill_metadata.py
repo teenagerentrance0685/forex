@@ -33,7 +33,9 @@ class SkillMetadata:
             "category": self.category,
             "inputs": [self._io_to_dict(item) for item in self.inputs],
             "outputs": [self._io_to_dict(item) for item in self.outputs],
-            "dependencies": [self._normalize_dependency(item) for item in self.dependencies],
+            "dependencies": [
+                self._normalize_dependency(item) for item in self.dependencies
+            ],
             "examples": [self._normalize_example(item) for item in self.examples],
             "tags": list(self.tags),
         }

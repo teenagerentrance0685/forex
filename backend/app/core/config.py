@@ -16,7 +16,9 @@ class Settings(BaseSettings):
 
     app_name: str = "HedgeMath OS MVP"
     env: str = Field(default="dev", description="dev|paper|live")
-    broker_mode: str = Field(default="mock", description="mock|paper|mt5|ctrader|binance|bitget")
+    broker_mode: str = Field(
+        default="mock", description="mock|paper|mt5|ctrader|binance|bitget"
+    )
     robot_id: str = "hedge-math-os-001"
     magic_number: int = 29052026
     default_symbol: str = "EURUSD"

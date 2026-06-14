@@ -21,6 +21,7 @@ from dataclasses import dataclass
 @dataclass
 class RedditPost:
     """Reddit post with sentiment."""
+
     post_id: str
     title: str
     content: str
@@ -35,42 +36,58 @@ class RedditPost:
 class RedditReader:
     """
     Extract trading sentiment from Reddit.
-    
+
     Note: Requires PRAW (Python Reddit API Wrapper) for real implementation.
     This is a template showing the interface.
     """
 
     # Common forex/trading symbols mentioned on Reddit
     TRADING_SYMBOLS = [
-        "EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD", "USDCHF",
-        "BTC", "ETH", "SPX", "SPY", "QQQ", "DXY",
-        "GOLD", "OIL", "CRUDE",
+        "EURUSD",
+        "GBPUSD",
+        "USDJPY",
+        "AUDUSD",
+        "USDCAD",
+        "USDCHF",
+        "BTC",
+        "ETH",
+        "SPX",
+        "SPY",
+        "QQQ",
+        "DXY",
+        "GOLD",
+        "OIL",
+        "CRUDE",
     ]
 
     def __init__(self, subreddits: Optional[List[str]] = None):
         """
         Initialize Reddit reader.
-        
+
         Args:
             subreddits: List of subreddits to monitor (default: popular trading ones)
         """
         self.subreddits = subreddits or [
-            "forex", "Daytrading", "investing", "trading", "stocks"
+            "forex",
+            "Daytrading",
+            "investing",
+            "trading",
+            "stocks",
         ]
         self.reddit = None  # Would be initialized with PRAW credentials
-        
+
     def read_recent_posts(self, limit: int = 50) -> List[RedditPost]:
         """
         Read recent posts from trading subreddits.
-        
+
         Args:
             limit: Max posts per subreddit
-            
+
         Returns:
             List of posts with sentiment
         """
         posts = []
-        
+
         # TODO: Implement with PRAW:
         # import praw
         # reddit = praw.Reddit(
@@ -78,20 +95,20 @@ class RedditReader:
         #     client_secret='...',
         #     user_agent='...'
         # )
-        
+
         for subreddit_name in self.subreddits:
             # subreddit = reddit.subreddit(subreddit_name)
             # for submission in subreddit.new(limit=limit):
             #     post = self._analyze_post(submission)
             #     posts.append(post)
             pass
-        
+
         return posts
 
     def get_market_sentiment(self) -> Dict[str, Any]:
         """
         Aggregate sentiment from recent posts.
-        
+
         Returns:
             {
                 "overall_sentiment": "bullish|bearish|neutral",
@@ -104,7 +121,7 @@ class RedditReader:
             }
         """
         posts = self.read_recent_posts(limit=100)
-        
+
         if not posts:
             return {
                 "overall_sentiment": "neutral",
@@ -115,13 +132,13 @@ class RedditReader:
                 "symbols_mentioned": {},
                 "top_posts": [],
             }
-        
+
         bullish_count = sum(1 for p in posts if p.sentiment == "bullish")
         bearish_count = sum(1 for p in posts if p.sentiment == "bearish")
         neutral_count = sum(1 for p in posts if p.sentiment == "neutral")
-        
+
         total = len(posts)
-        
+
         # Determine overall sentiment
         if bullish_count > total * 0.6:
             overall = "bullish"
@@ -129,17 +146,17 @@ class RedditReader:
             overall = "bearish"
         else:
             overall = "neutral"
-        
+
         # Calculate confidence (based on consensus)
         max_sentiment = max(bullish_count, bearish_count, neutral_count)
         confidence = max_sentiment / total if total > 0 else 0.0
-        
+
         # Track mentioned symbols
         symbols_mentioned = {}
         for post in posts:
             for symbol in post.symbols_mentioned:
                 symbols_mentioned[symbol] = symbols_mentioned.get(symbol, 0) + 1
-        
+
         return {
             "overall_sentiment": overall,
             "confidence": confidence,
@@ -161,11 +178,11 @@ class RedditReader:
     def _analyze_post(self, submission: Any) -> Optional[RedditPost]:
         """Analyze a Reddit post for sentiment."""
         text = (submission.title + " " + submission.selftext).lower()
-        
+
         # Extract sentiment
         bullish_score = self._score_sentiment(text, "bullish")
         bearish_score = self._score_sentiment(text, "bearish")
-        
+
         if bullish_score > bearish_score:
             sentiment = "bullish"
             confidence = bullish_score
@@ -175,10 +192,10 @@ class RedditReader:
         else:
             sentiment = "neutral"
             confidence = 0.5
-        
+
         # Extract symbols mentioned
         symbols = self._extract_symbols(text)
-        
+
         return RedditPost(
             post_id=submission.id,
             title=submission.title,
@@ -195,43 +212,61 @@ class RedditReader:
     def _score_sentiment(text: str, sentiment_type: str) -> float:
         """Score sentiment of text."""
         bullish_keywords = [
-            "bull", "bullish", "moon", "pump", "buy", "long",
-            "strong", "surge", "breakout", "rally", "gains",
+            "bull",
+            "bullish",
+            "moon",
+            "pump",
+            "buy",
+            "long",
+            "strong",
+            "surge",
+            "breakout",
+            "rally",
+            "gains",
         ]
         bearish_keywords = [
-            "bear", "bearish", "crash", "dump", "sell", "short",
-            "weak", "decline", "breakdown", "plunge", "loss",
+            "bear",
+            "bearish",
+            "crash",
+            "dump",
+            "sell",
+            "short",
+            "weak",
+            "decline",
+            "breakdown",
+            "plunge",
+            "loss",
         ]
-        
+
         keywords = bullish_keywords if sentiment_type == "bullish" else bearish_keywords
-        
+
         score = 0.0
         for keyword in keywords:
             count = text.count(keyword)
             score += count * 0.1
-        
+
         return min(1.0, score)
 
     @staticmethod
     def _extract_symbols(text: str) -> List[str]:
         """Extract trading symbols from text."""
         symbols = []
-        
+
         # Look for symbol patterns like EURUSD, BTC, SPY
-        pattern = r'\b([A-Z]{3,6})\b'
+        pattern = r"\b([A-Z]{3,6})\b"
         matches = re.findall(pattern, text)
-        
+
         for match in matches:
             if match in RedditReader.TRADING_SYMBOLS:
                 symbols.append(match)
-        
+
         return list(set(symbols))  # Unique symbols
 
 
 # Mock implementation for testing without PRAW
 class MockRedditReader(RedditReader):
     """Mock Reddit reader for testing."""
-    
+
     def read_recent_posts(self, limit: int = 50) -> List[RedditPost]:
         """Return mock posts."""
         return [

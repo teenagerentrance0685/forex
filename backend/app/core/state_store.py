@@ -18,7 +18,10 @@ class JsonStateStore:
         self.path = Path(path)
         self._lock = Lock()
         if not self.path.exists():
-            self.path.write_text(json.dumps({"robot": None, "cycles": {}, "orders": {}}, indent=2), encoding="utf-8")
+            self.path.write_text(
+                json.dumps({"robot": None, "cycles": {}, "orders": {}}, indent=2),
+                encoding="utf-8",
+            )
 
     def _read(self) -> dict[str, Any]:
         with self._lock:
@@ -26,7 +29,9 @@ class JsonStateStore:
 
     def _write(self, data: dict[str, Any]) -> None:
         with self._lock:
-            self.path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+            self.path.write_text(
+                json.dumps(data, indent=2, default=str), encoding="utf-8"
+            )
 
     def save_robot(self, state: RobotState) -> None:
         data = self._read()
@@ -41,7 +46,9 @@ class JsonStateStore:
         data = self._read()
         data.setdefault("cycles", {})[cycle.cycle_id] = cycle.model_dump(mode="json")
         for order in cycle.buy_orders + cycle.sell_orders:
-            data.setdefault("orders", {})[order.order_id] = order.model_dump(mode="json")
+            data.setdefault("orders", {})[order.order_id] = order.model_dump(
+                mode="json"
+            )
         self._write(data)
 
     def load_cycle(self, cycle_id: str) -> HedgeCycle | None:
@@ -63,23 +70,40 @@ class GeneStore:
 
     def list(self) -> list[WinnerGene]:
         with self._lock:
-            return [WinnerGene.model_validate(x) for x in json.loads(self.path.read_text(encoding="utf-8"))]
+            return [
+                WinnerGene.model_validate(x)
+                for x in json.loads(self.path.read_text(encoding="utf-8"))
+            ]
 
     def add(self, gene: WinnerGene) -> None:
         items = self.list()
         items.append(gene)
         with self._lock:
-            self.path.write_text(json.dumps([x.model_dump(mode="json") for x in items], indent=2), encoding="utf-8")
+            self.path.write_text(
+                json.dumps([x.model_dump(mode="json") for x in items], indent=2),
+                encoding="utf-8",
+            )
 
     def promote(self, symbol: str, timeframe: str) -> WinnerGene | None:
         items = self.list()
-        candidates = [g for g in items if g.symbol == symbol and g.timeframe == timeframe]
+        candidates = [
+            g for g in items if g.symbol == symbol and g.timeframe == timeframe
+        ]
         if not candidates:
             return None
-        best = sorted(candidates, key=lambda g: (g.profit_factor, g.recovery_factor, -g.max_drawdown), reverse=True)[0]
+        best = sorted(
+            candidates,
+            key=lambda g: (g.profit_factor, g.recovery_factor, -g.max_drawdown),
+            reverse=True,
+        )[0]
         for g in items:
             if g.symbol == symbol and g.timeframe == timeframe:
-                g.promoted = g is best or (g.step_size == best.step_size and g.x_level == best.x_level)
+                g.promoted = g is best or (
+                    g.step_size == best.step_size and g.x_level == best.x_level
+                )
         with self._lock:
-            self.path.write_text(json.dumps([x.model_dump(mode="json") for x in items], indent=2), encoding="utf-8")
+            self.path.write_text(
+                json.dumps([x.model_dump(mode="json") for x in items], indent=2),
+                encoding="utf-8",
+            )
         return best

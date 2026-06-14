@@ -56,12 +56,19 @@ class EnterpriseGraphManager:
             readme_file = child / "README.md"
             if readme_file.exists():
                 text = readme_file.read_text(encoding="utf-8")
-                first_line = next((line.strip() for line in text.splitlines() if line.strip()), "")
+                first_line = next(
+                    (line.strip() for line in text.splitlines() if line.strip()), ""
+                )
                 if first_line:
                     meta["description"] = first_line.lstrip("# ")
             self.register_node(node_id, meta)
 
-    def populate_from_imports(self, base_path: str | Path, skills_root: str = "skills", backend_root: str = "backend/app") -> None:
+    def populate_from_imports(
+        self,
+        base_path: str | Path,
+        skills_root: str = "skills",
+        backend_root: str = "backend/app",
+    ) -> None:
         base = Path(base_path)
         skills_dir = base / skills_root
         backend_dir = base / backend_root
@@ -78,8 +85,13 @@ class EnterpriseGraphManager:
                     text = path.read_text(encoding="utf-8")
                 except Exception:
                     continue
-                module_id = path.relative_to(base).with_suffix("").as_posix().replace("/", ".")
-                self.register_node(module_id, {"category": "agent", "source": str(path.relative_to(base))})
+                module_id = (
+                    path.relative_to(base).with_suffix("").as_posix().replace("/", ".")
+                )
+                self.register_node(
+                    module_id,
+                    {"category": "agent", "source": str(path.relative_to(base))},
+                )
                 for imported in self._parse_imports(text, module_id):
                     label = self._classify_import(imported, text)
                     if imported.startswith("skills."):
@@ -99,8 +111,13 @@ class EnterpriseGraphManager:
                     text = path.read_text(encoding="utf-8")
                 except Exception:
                     continue
-                module_id = path.relative_to(base).with_suffix("").as_posix().replace("/", ".")
-                self.register_node(module_id, {"category": "skill", "source": str(path.relative_to(base))})
+                module_id = (
+                    path.relative_to(base).with_suffix("").as_posix().replace("/", ".")
+                )
+                self.register_node(
+                    module_id,
+                    {"category": "skill", "source": str(path.relative_to(base))},
+                )
                 for imported in self._parse_imports(text, module_id):
                     label = self._classify_import(imported, text)
                     if imported.startswith("skills."):
@@ -128,7 +145,9 @@ class EnterpriseGraphManager:
             elif isinstance(node, ast.ImportFrom):
                 module = node.module
                 if node.level and module_id:
-                    base_pkg = module_id.rsplit(".", 1)[0] if "." in module_id else module_id
+                    base_pkg = (
+                        module_id.rsplit(".", 1)[0] if "." in module_id else module_id
+                    )
                     parents = base_pkg.split(".")
                     if node.level > len(parents):
                         resolved = None
@@ -159,7 +178,11 @@ class EnterpriseGraphManager:
         pattern = re.compile(r"[\'\"]([^\'\"]+\.(?:yaml|yml|json|csv))[\'\"]")
         for match in pattern.finditer(source):
             path_text = match.group(1)
-            if path_text.startswith("data/") or path_text.startswith("./data/") or path_text.startswith("../data/"):
+            if (
+                path_text.startswith("data/")
+                or path_text.startswith("./data/")
+                or path_text.startswith("../data/")
+            ):
                 normalized = Path(path_text).as_posix()
                 nodes.append(f"data:{normalized}")
         return nodes
@@ -177,6 +200,7 @@ class EnterpriseGraphManager:
         - If `edge_type` provided: filter edges by label.
         - If neither provided: return full graph.
         """
+
         def edge_match(e: dict[str, str]) -> bool:
             if edge_type and e.get("label") != edge_type:
                 return False
@@ -195,9 +219,17 @@ class EnterpriseGraphManager:
             return {"nodes": nodes, "edges": edges}
 
         if category:
-            nodes = {nid: meta for nid, meta in self.nodes.items() if meta.get("category") == category}
+            nodes = {
+                nid: meta
+                for nid, meta in self.nodes.items()
+                if meta.get("category") == category
+            }
             node_keys = set(nodes.keys())
-            edges = [e for e in self.edges if e["src"] in node_keys and e["dst"] in node_keys and edge_match(e)]
+            edges = [
+                e
+                for e in self.edges
+                if e["src"] in node_keys and e["dst"] in node_keys and edge_match(e)
+            ]
             return {"nodes": nodes, "edges": edges}
 
         edges = [e for e in self.edges if edge_match(e)]
@@ -248,7 +280,7 @@ class EnterpriseGraphManager:
             if label:
                 lines.append(f'  {src} -->|"{label}"| {dst}')
             else:
-                lines.append(f'  {src} --> {dst}')
+                lines.append(f"  {src} --> {dst}")
         return "\n".join(lines)
 
     @staticmethod

@@ -2,7 +2,9 @@
 
 from .economic_calendar import EconomicCalendar, EconomicEvent, EventImpact
 from .economic_calendar_reader import (
-    EconomicCalendarReader, EventImportance, get_calendar_reader
+    EconomicCalendarReader,
+    EventImportance,
+    get_calendar_reader,
 )
 
 __all__ = [

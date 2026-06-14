@@ -25,8 +25,8 @@ def test_ctrader_connect_and_account_flow():
         json={
             "access_token": "demo-token",
             "account_id": "demo-account",
-            "environment": "demo"
-        }
+            "environment": "demo",
+        },
     )
     assert resp.status_code == 200
     data = resp.json()

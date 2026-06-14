@@ -12,7 +12,9 @@ def main() -> int:
 
     graph_agent = EnterpriseGraphManager()
     graph_agent.populate_from_skills(repo_root / "skills")
-    graph_agent.populate_from_imports(repo_root, skills_root="skills", backend_root="backend/app")
+    graph_agent.populate_from_imports(
+        repo_root, skills_root="skills", backend_root="backend/app"
+    )
 
     json_path = graph_root / "enterprise_graph.json"
     mermaid_path = graph_root / "enterprise_graph.mermaid"

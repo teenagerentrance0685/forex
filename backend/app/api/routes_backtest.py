@@ -28,7 +28,9 @@ class BacktestAnalyzeRequest(BaseModel):
 
 @router.post("/run")
 def run_backtest(req: BacktestRequest):
-    gene = optimizer.run(req.symbol, req.timeframe, req.step_range, req.x_range, req.risk_range)
+    gene = optimizer.run(
+        req.symbol, req.timeframe, req.step_range, req.x_range, req.risk_range
+    )
     genes_memory.remember(gene)
     return {"winner_gene_set": gene}
 
@@ -37,6 +39,10 @@ def run_backtest(req: BacktestRequest):
 def analyze_backtest(req: BacktestAnalyzeRequest):
     result = execute_backtest(req.strategy, req.market_data, req.config)
     hook_results = evolution_agent.run_after_backtest(
-        HookContext(event="after_backtest", payload={"result": result}, metadata={"skill": "backtesting"})
+        HookContext(
+            event="after_backtest",
+            payload={"result": result},
+            metadata={"skill": "backtesting"},
+        )
     )
     return {"result": result, "hooks": [hook.__dict__ for hook in hook_results]}

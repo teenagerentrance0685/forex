@@ -33,7 +33,7 @@ from .context_manager import ContextManager, TradingContext
 class IntelligenceManager:
     """
     Central orchestrator for Intelligence OS.
-    
+
     Responsible for:
     1. Managing evidence from all sources
     2. Building trading context
@@ -44,7 +44,7 @@ class IntelligenceManager:
     def __init__(self, update_interval_seconds: int = 300):
         """
         Initialize Intelligence Manager.
-        
+
         Args:
             update_interval_seconds: How often to rebuild context (default 5 min)
         """
@@ -137,38 +137,41 @@ class IntelligenceManager:
     def get_current_context(self, force_rebuild: bool = False) -> TradingContext:
         """
         Get current trading context.
-        
+
         Rebuilds context if:
         1. force_rebuild is True
         2. Current context is None
         3. Update interval has elapsed
-        
+
         Args:
             force_rebuild: Force rebuild even if interval hasn't elapsed
-            
+
         Returns:
             TradingContext object with all dimensions
         """
         now = datetime.now(timezone.utc)
         should_rebuild = (
-            force_rebuild or
-            self.current_context is None or
-            (self.last_context_update is None) or
-            ((now - self.last_context_update).total_seconds() > self.update_interval_seconds)
+            force_rebuild
+            or self.current_context is None
+            or (self.last_context_update is None)
+            or (
+                (now - self.last_context_update).total_seconds()
+                > self.update_interval_seconds
+            )
         )
-        
+
         if should_rebuild:
             self.current_context = self.context_manager.build_context()
             self.last_context_update = now
-        
+
         return self.current_context
 
     def is_safe_to_trade(self) -> bool:
         """
         Check if current context is safe for trading.
-        
+
         This is the key integration point with NO_TRADE_ENGINE.
-        
+
         Returns:
             True if trading is permitted, False otherwise
         """
@@ -178,7 +181,7 @@ class IntelligenceManager:
     def get_risk_assessment(self) -> Dict[str, Any]:
         """
         Get comprehensive risk assessment of current context.
-        
+
         Returns:
             {
                 "safe_to_trade": bool,
@@ -224,7 +227,8 @@ class IntelligenceManager:
             "evidence_summary": self.get_evidence_summary(),
             "last_context_update": (
                 self.last_context_update.isoformat()
-                if self.last_context_update else None
+                if self.last_context_update
+                else None
             ),
             "update_interval_seconds": self.update_interval_seconds,
         }

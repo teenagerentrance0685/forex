@@ -27,9 +27,18 @@ class EvolutionMetrics:
 
 
 class EvolutionManager:
-    def __init__(self, memory_path: str | None = None, governance_rules_path: str | None = None, metrics_path: str | None = None):
+    def __init__(
+        self,
+        memory_path: str | None = None,
+        governance_rules_path: str | None = None,
+        metrics_path: str | None = None,
+    ):
         self.memory_manager = MemoryManager(Path(memory_path) if memory_path else None)
-        self.governance_manager = GovernanceManager(Path(governance_rules_path) if governance_rules_path else Path("./backend/app/governance"))
+        self.governance_manager = GovernanceManager(
+            Path(governance_rules_path)
+            if governance_rules_path
+            else Path("./backend/app/governance")
+        )
         self.pattern_engine = PatternDiscoveryEngine(self.memory_manager)
         self.strategy_evaluator = StrategyEvaluator(self.memory_manager)
         self.weakness_detector = WeaknessDetector(self.memory_manager)
@@ -38,7 +47,9 @@ class EvolutionManager:
         self.self_correction_engine = SelfCorrectionEngine(self.memory_manager)
         self.regime_simulator = RegimeSimulator(self.memory_manager)
         self.winner_dna = WinnerDna(self.memory_manager)
-        self.metrics_path = Path(metrics_path or "./backend/app/evolution/metrics/evolution_metrics.json")
+        self.metrics_path = Path(
+            metrics_path or "./backend/app/evolution/metrics/evolution_metrics.json"
+        )
         self.metrics = EvolutionMetrics()
 
     def discover_patterns(self) -> list[dict[str, Any]]:
@@ -57,11 +68,15 @@ class EvolutionManager:
         self._save_metrics()
         return weaknesses
 
-    def generate_recommendations(self, weaknesses: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def generate_recommendations(
+        self, weaknesses: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         recommendations = self.improvement_engine.suggest(weaknesses)
         self.metrics.recommendations_generated = len(recommendations)
         if recommendations:
-            self.metrics.confidence_score = sum(item.get("confidence", 0.0) for item in recommendations) / len(recommendations)
+            self.metrics.confidence_score = sum(
+                item.get("confidence", 0.0) for item in recommendations
+            ) / len(recommendations)
         self._save_metrics()
         return recommendations
 
@@ -84,13 +99,20 @@ class EvolutionManager:
     def save_evolution_history(self, record: dict[str, Any]) -> str:
         record_path = Path("./backend/app/evolution/history")
         record_path.mkdir(parents=True, exist_ok=True)
-        filename = record_path / f"evolution_{record.get('timestamp', Path(record_path).stem)}.json"
-        filename.write_text(json.dumps(record, default=str, ensure_ascii=False, indent=2))
+        filename = (
+            record_path
+            / f"evolution_{record.get('timestamp', Path(record_path).stem)}.json"
+        )
+        filename.write_text(
+            json.dumps(record, default=str, ensure_ascii=False, indent=2)
+        )
         return str(filename)
 
     def _save_metrics(self) -> None:
         self.metrics_path.parent.mkdir(parents=True, exist_ok=True)
-        self.metrics_path.write_text(json.dumps(self.metrics.__dict__, ensure_ascii=False, indent=2))
+        self.metrics_path.write_text(
+            json.dumps(self.metrics.__dict__, ensure_ascii=False, indent=2)
+        )
 
     def save_failure(self, content: dict[str, Any], tags: list[str] | None = None):
         return self.memory_manager.save_failure(content, tags)

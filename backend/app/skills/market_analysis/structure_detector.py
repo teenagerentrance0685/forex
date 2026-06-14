@@ -5,7 +5,9 @@ from typing import Dict
 import pandas as pd
 
 
-def detect_structure(ohlcv: pd.DataFrame, lookback: int = 30, tolerance: float = 0.002) -> Dict[str, str]:
+def detect_structure(
+    ohlcv: pd.DataFrame, lookback: int = 30, tolerance: float = 0.002
+) -> Dict[str, str]:
     """Detect market structure from recent high/low price action."""
     if ohlcv.empty or len(ohlcv) < 6:
         return {"structure": "SIDEWAY", "trend": "neutral"}

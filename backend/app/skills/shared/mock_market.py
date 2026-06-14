@@ -12,10 +12,17 @@ def generate_tick(symbol: str, start_price: float, spread: float) -> MarketTick:
     price = start_price + random.uniform(-0.00035, 0.00035)
     bid = price - spread / 2
     ask = price + spread / 2
-    return MarketTick(symbol=symbol, bid=round(bid, 5), ask=round(ask, 5), timestamp=datetime.now(timezone.utc))
+    return MarketTick(
+        symbol=symbol,
+        bid=round(bid, 5),
+        ask=round(ask, 5),
+        timestamp=datetime.now(timezone.utc),
+    )
 
 
-def generate_ohlcv(symbol: str, start_price: float, num_candles: int = 20) -> list[dict]:
+def generate_ohlcv(
+    symbol: str, start_price: float, num_candles: int = 20
+) -> list[dict]:
     """Generate mock OHLCV candles for regime analysis."""
     candles = []
     current_price = start_price

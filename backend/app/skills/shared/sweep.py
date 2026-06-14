@@ -6,7 +6,11 @@ from app.core.models import Order, OrderStatus
 
 
 def detect_orphans(state: object, broker_orders: list[Order]) -> list[Order]:
-    return [o for o in broker_orders if o.magic_number != state.magic_number or o.robot_id != state.robot_id]
+    return [
+        o
+        for o in broker_orders
+        if o.magic_number != state.magic_number or o.robot_id != state.robot_id
+    ]
 
 
 def sweep_orders(orphans: list[Order]) -> list[Order]:

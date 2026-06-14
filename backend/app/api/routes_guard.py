@@ -3,7 +3,12 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from app.core.models import RiskDecision
-from app.core.runtime import get_or_create_robot_state, market_agent, no_trade_guard, risk_guard
+from app.core.runtime import (
+    get_or_create_robot_state,
+    market_agent,
+    no_trade_guard,
+    risk_guard,
+)
 
 router = APIRouter(prefix="/api/v1/guard", tags=["guard"])
 

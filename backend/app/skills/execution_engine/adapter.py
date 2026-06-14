@@ -13,7 +13,11 @@ def build_broker_order_id() -> str:
 
 def determine_order_status(settings: Any) -> OrderStatus:
     """Choose a status based on whether live execution is enabled."""
-    return OrderStatus.OPEN if getattr(settings, "allow_live_execution", False) else OrderStatus.REJECTED
+    return (
+        OrderStatus.OPEN
+        if getattr(settings, "allow_live_execution", False)
+        else OrderStatus.REJECTED
+    )
 
 
 def execute_order(order_data: Dict[str, Any], settings: Any) -> Dict[str, Any]:

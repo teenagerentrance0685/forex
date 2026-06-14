@@ -12,7 +12,11 @@ graph_agent = EnterpriseGraphManager()
 
 @router.get("/status")
 def graph_status():
-    return {"ok": True, "nodes": len(graph_agent.nodes), "edges": len(graph_agent.edges)}
+    return {
+        "ok": True,
+        "nodes": len(graph_agent.nodes),
+        "edges": len(graph_agent.edges),
+    }
 
 
 @router.post("/register/{node_id}")

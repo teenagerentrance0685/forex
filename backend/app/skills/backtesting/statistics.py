@@ -26,7 +26,9 @@ def _returns(profits: list[float], starting_balance: float) -> list[float]:
     return values
 
 
-def calculate_drawdowns(profits: list[float], starting_balance: float = 10000.0) -> dict[str, float | int]:
+def calculate_drawdowns(
+    profits: list[float], starting_balance: float = 10000.0
+) -> dict[str, float | int]:
     balance = starting_balance
     peak = starting_balance
     current_loss_streak = 0
@@ -58,13 +60,17 @@ def calculate_drawdowns(profits: list[float], starting_balance: float = 10000.0)
     non_zero = [value for value in drawdowns if value > 0]
     return {
         "max_drawdown": round(max(drawdowns, default=0.0), 4),
-        "average_drawdown": round(sum(non_zero) / len(non_zero), 4) if non_zero else 0.0,
+        "average_drawdown": (
+            round(sum(non_zero) / len(non_zero), 4) if non_zero else 0.0
+        ),
         "consecutive_losses": max_consecutive_losses,
         "recovery_time": max(recovery_bars, default=bars_since_peak),
     }
 
 
-def calculate_statistics(trades: list[dict[str, Any]], starting_balance: float = 10000.0) -> dict[str, float | int]:
+def calculate_statistics(
+    trades: list[dict[str, Any]], starting_balance: float = 10000.0
+) -> dict[str, float | int]:
     profits = [_profit(trade) for trade in trades]
     wins = [profit for profit in profits if profit > 0]
     losses = [profit for profit in profits if profit < 0]
@@ -78,16 +84,27 @@ def calculate_statistics(trades: list[dict[str, Any]], starting_balance: float =
     average_rr = average_win / average_loss if average_loss else 0.0
     period_returns = _returns(profits, starting_balance)
     mean_return = sum(period_returns) / len(period_returns) if period_returns else 0.0
-    variance = sum((value - mean_return) ** 2 for value in period_returns) / len(period_returns) if period_returns else 0.0
+    variance = (
+        sum((value - mean_return) ** 2 for value in period_returns)
+        / len(period_returns)
+        if period_returns
+        else 0.0
+    )
     sharpe_ratio = mean_return / sqrt(variance) if variance > 0 else 0.0
     drawdown = calculate_drawdowns(profits, starting_balance)
     net_profit = sum(profits)
-    recovery_factor = net_profit / drawdown["max_drawdown"] if drawdown["max_drawdown"] else 0.0
+    recovery_factor = (
+        net_profit / drawdown["max_drawdown"] if drawdown["max_drawdown"] else 0.0
+    )
 
     return {
         "trade_count": trade_count,
         "win_rate": round(win_rate, 4),
-        "profit_factor": round(gross_profit / gross_loss, 4) if gross_loss else round(gross_profit, 4),
+        "profit_factor": (
+            round(gross_profit / gross_loss, 4)
+            if gross_loss
+            else round(gross_profit, 4)
+        ),
         "expectancy": round(expectancy, 4),
         "average_rr": round(average_rr, 4),
         "sharpe_ratio": round(sharpe_ratio, 4),

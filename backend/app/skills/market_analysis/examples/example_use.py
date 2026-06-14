@@ -3,6 +3,7 @@
 Run manually with the project PYTHONPATH set so `app.market.feature_pipeline`
 is importable (normal project execution should already have that configured).
 """
+
 from backend.app.skills.market_analysis import analyze_market_state
 
 if __name__ == "__main__":

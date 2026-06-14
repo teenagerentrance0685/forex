@@ -35,7 +35,9 @@ def tick():
     no_trade_decision = no_trade_guard.evaluate(state, market_state)
     if not no_trade_decision.allowed:
         state.status = RobotStatus.STOPPED
-        state.fsm_state = fsm_brain.next_state(state, no_trade_decision, has_cycle=None, surplus_active=False)
+        state.fsm_state = fsm_brain.next_state(
+            state, no_trade_decision, has_cycle=None, surplus_active=False
+        )
         save_robot_state(state)
         return {
             "state": state,
@@ -53,11 +55,19 @@ def tick():
     current_atr = float(regime_result.get("volatility", {}).get("atr", 0.00001))
     stop_distance = max(current_atr / settings.tick_size, 10.0)
 
-    capital_sizing = capital_engine.size_position(state, {"tick": tick_data, "stop_distance": stop_distance, "regime": current_regime})
+    capital_sizing = capital_engine.size_position(
+        state,
+        {"tick": tick_data, "stop_distance": stop_distance, "regime": current_regime},
+    )
 
     # Run before-signal hooks
     try:
-        before_signal_results = evolution_agent.run_before_signal(HookContext(event="before_signal", payload={"state": state.model_dump(), "tick": tick_data.model_dump()}))
+        before_signal_results = evolution_agent.run_before_signal(
+            HookContext(
+                event="before_signal",
+                payload={"state": state.model_dump(), "tick": tick_data.model_dump()},
+            )
+        )
         if any(not r.proceed for r in before_signal_results):
             risk = risk_guard.evaluate(state, tick_data)
             risk.allowed = False
@@ -65,9 +75,18 @@ def tick():
             for r in before_signal_results:
                 if not r.proceed:
                     risk.reasons.extend(r.reasons)
-            state.fsm_state = fsm_brain.next_state(state, risk, has_cycle=None, surplus_active=False)
+            state.fsm_state = fsm_brain.next_state(
+                state, risk, has_cycle=None, surplus_active=False
+            )
             save_robot_state(state)
-            return {"state": state, "tick": tick_data, "grid": None, "risk": risk, "executed_orders": [], "cycle": None}
+            return {
+                "state": state,
+                "tick": tick_data,
+                "grid": None,
+                "risk": risk,
+                "executed_orders": [],
+                "cycle": None,
+            }
     except Exception:
         # Fail-safe: continue without hooks on error
         pass
@@ -81,7 +100,11 @@ def tick():
         try:
             close_context = HookContext(
                 event="before_close",
-                payload={"state": state.model_dump(), "tick": tick_data.model_dump(), "risk": risk.model_dump()},
+                payload={
+                    "state": state.model_dump(),
+                    "tick": tick_data.model_dump(),
+                    "risk": risk.model_dump(),
+                },
             )
             before_close_results = evolution_agent.run_before_close(close_context)
             if any(not result.proceed for result in before_close_results):
@@ -96,7 +119,9 @@ def tick():
                         "state": state.model_dump(),
                         "tick": tick_data.model_dump(),
                         "risk": risk.model_dump(),
-                        "hook_results": [result.__dict__ for result in before_close_results],
+                        "hook_results": [
+                            result.__dict__ for result in before_close_results
+                        ],
                     },
                     tags=["evidence", "close", "hook"],
                 )
@@ -113,17 +138,34 @@ def tick():
                     tags=["failure", "close", "risk"],
                 )
                 try:
-                    evolution_agent.run_after_close(HookContext(
-                        event="after_close",
-                        payload={"state": state.model_dump(), "tick": tick_data.model_dump(), "risk": risk.model_dump()},
-                    ))
+                    evolution_agent.run_after_close(
+                        HookContext(
+                            event="after_close",
+                            payload={
+                                "state": state.model_dump(),
+                                "tick": tick_data.model_dump(),
+                                "risk": risk.model_dump(),
+                            },
+                        )
+                    )
                 except Exception:
                     pass
         except Exception:
             pass
 
-    cycle = state_store.load_cycle(state.current_cycle_id) if state.current_cycle_id else None
-    grid = calculate_grid(state.symbol, tick_data.mid, tick_data.mid, settings.default_step_size, settings.default_x_level, settings.tick_size)
+    cycle = (
+        state_store.load_cycle(state.current_cycle_id)
+        if state.current_cycle_id
+        else None
+    )
+    grid = calculate_grid(
+        state.symbol,
+        tick_data.mid,
+        tick_data.mid,
+        settings.default_step_size,
+        settings.default_x_level,
+        settings.tick_size,
+    )
     executed = []
 
     if state.status == "RUNNING" and risk.allowed:
@@ -133,7 +175,15 @@ def tick():
             for order in cycle.buy_orders + cycle.sell_orders:
                 # Run before-trade hooks; skip execution if any hook blocks
                 try:
-                    before_trade_results = evolution_agent.run_before_trade(HookContext(event="before_trade", payload={"order": order.model_dump(), "state": state.model_dump()}))
+                    before_trade_results = evolution_agent.run_before_trade(
+                        HookContext(
+                            event="before_trade",
+                            payload={
+                                "order": order.model_dump(),
+                                "state": state.model_dump(),
+                            },
+                        )
+                    )
                     if any(not r.proceed for r in before_trade_results):
                         continue
                 except Exception:
@@ -143,16 +193,41 @@ def tick():
                 executed.append(opened)
 
                 try:
-                    evolution_agent.run_after_trade(HookContext(event="after_trade", payload={"order": opened.model_dump(), "state": state.model_dump()}))
+                    evolution_agent.run_after_trade(
+                        HookContext(
+                            event="after_trade",
+                            payload={
+                                "order": opened.model_dump(),
+                                "state": state.model_dump(),
+                            },
+                        )
+                    )
                 except Exception:
                     pass
             state_store.save_cycle(cycle)
         else:
-            grid = calculate_grid(state.symbol, cycle.buy_orders[0].entry_price, tick_data.mid, settings.default_step_size, settings.default_x_level, settings.tick_size)
-            surplus_orders = hedge_engine.evaluate_surplus(state, cycle, grid, tick_data)
+            grid = calculate_grid(
+                state.symbol,
+                cycle.buy_orders[0].entry_price,
+                tick_data.mid,
+                settings.default_step_size,
+                settings.default_x_level,
+                settings.tick_size,
+            )
+            surplus_orders = hedge_engine.evaluate_surplus(
+                state, cycle, grid, tick_data
+            )
             for order in surplus_orders:
                 try:
-                    before_trade_results = evolution_agent.run_before_trade(HookContext(event="before_trade", payload={"order": order.model_dump(), "state": state.model_dump()}))
+                    before_trade_results = evolution_agent.run_before_trade(
+                        HookContext(
+                            event="before_trade",
+                            payload={
+                                "order": order.model_dump(),
+                                "state": state.model_dump(),
+                            },
+                        )
+                    )
                     if any(not r.proceed for r in before_trade_results):
                         continue
                 except Exception:
@@ -166,12 +241,25 @@ def tick():
                     cycle.sell_orders.append(opened)
 
                 try:
-                    evolution_agent.run_after_trade(HookContext(event="after_trade", payload={"order": opened.model_dump(), "state": state.model_dump()}))
+                    evolution_agent.run_after_trade(
+                        HookContext(
+                            event="after_trade",
+                            payload={
+                                "order": opened.model_dump(),
+                                "state": state.model_dump(),
+                            },
+                        )
+                    )
                 except Exception:
                     pass
             state_store.save_cycle(cycle)
 
-    state.fsm_state = fsm_brain.next_state(state, risk, has_cycle=cycle is not None, surplus_active=bool(executed and cycle and cycle.surplus_side != "NONE"))
+    state.fsm_state = fsm_brain.next_state(
+        state,
+        risk,
+        has_cycle=cycle is not None,
+        surplus_active=bool(executed and cycle and cycle.surplus_side != "NONE"),
+    )
     state.last_step = grid.current_step
     save_robot_state(state)
     return {

@@ -11,21 +11,18 @@ Endpoints:
 - GET /api/v1/intelligence/evidence/summary - Evidence summary
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
 
 from backend.app.intelligence.intelligence_manager import get_intelligence_manager
-from backend.app.intelligence.evidence_manager import EvidenceType
-from backend.app.intelligence.context_manager import (
-    MarketRegime, TradingSession, SentimentLevel, NewsRiskLevel
-)
 
 
 # Pydantic Models for API
 class AddEvidenceRequest(BaseModel):
     """Add evidence to Intelligence OS."""
+
     source: str
     evidence_type: str  # social|market|document|repository|knowledge
     content: str
@@ -35,6 +32,7 @@ class AddEvidenceRequest(BaseModel):
 
 class TradingContextResponse(BaseModel):
     """Trading context response."""
+
     regime: str
     session: str
     sentiment: str
@@ -47,6 +45,7 @@ class TradingContextResponse(BaseModel):
 
 class RiskAssessmentResponse(BaseModel):
     """Risk assessment response."""
+
     safe_to_trade: bool
     risk_level: str
     context: Dict[str, Any]
@@ -147,7 +146,7 @@ async def get_context(force_rebuild: bool = False):
     """Get current trading context."""
     intelligence = get_intelligence_manager()
     context = intelligence.get_current_context(force_rebuild=force_rebuild)
-    
+
     return TradingContextResponse(
         regime=context.regime.value,
         session=context.session.value,
@@ -165,7 +164,7 @@ async def get_risk_assessment():
     """Get comprehensive risk assessment."""
     intelligence = get_intelligence_manager()
     assessment = intelligence.get_risk_assessment()
-    
+
     return RiskAssessmentResponse(
         safe_to_trade=assessment["safe_to_trade"],
         risk_level=assessment["risk_level"],
@@ -179,7 +178,7 @@ async def check_safe_to_trade():
     """Quick check: is it safe to trade?"""
     intelligence = get_intelligence_manager()
     safe = intelligence.is_safe_to_trade()
-    
+
     return {
         "safe_to_trade": safe,
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -191,7 +190,7 @@ async def get_evidence_summary():
     """Get summary of all evidence."""
     intelligence = get_intelligence_manager()
     summary = intelligence.get_evidence_summary()
-    
+
     return {
         "summary": summary,
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -206,7 +205,7 @@ async def get_high_confidence_evidence(min_confidence: float = 0.7, limit: int =
         min_confidence=min_confidence,
         limit=limit,
     )
-    
+
     return {
         "evidence": evidence,
         "count": len(evidence),
@@ -219,7 +218,7 @@ async def get_status():
     """Get complete Intelligence OS status."""
     intelligence = get_intelligence_manager()
     status = intelligence.get_status()
-    
+
     return status
 
 
@@ -228,7 +227,7 @@ async def cleanup_old_evidence(hours: int = 24):
     """Remove evidence older than N hours."""
     intelligence = get_intelligence_manager()
     removed = intelligence.cleanup_old_evidence(hours=hours)
-    
+
     return {
         "success": True,
         "removed_count": removed,

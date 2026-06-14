@@ -5,7 +5,14 @@ import math
 from backend.app.core.models import GridState
 
 
-def calculate_grid(symbol: str, base_price: float, current_price: float, step_size: float, x_level: int, tick_size: float) -> GridState:
+def calculate_grid(
+    symbol: str,
+    base_price: float,
+    current_price: float,
+    step_size: float,
+    x_level: int,
+    tick_size: float,
+) -> GridState:
     if step_size <= 0:
         raise ValueError("step_size must be > 0")
     if x_level < 1:

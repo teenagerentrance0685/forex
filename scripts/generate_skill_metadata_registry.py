@@ -7,7 +7,6 @@ from typing import Any, Dict, List
 import sys
 import json
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILLS_ROOT = REPO_ROOT / "skills"
 BACKEND_ROOT = REPO_ROOT / "backend"
@@ -68,7 +67,9 @@ def main() -> int:
         if metadata is not None:
             registry[module_name] = metadata
 
-    OUTPUT_PATH.write_text(json.dumps(registry, indent=2, ensure_ascii=False), encoding="utf-8")
+    OUTPUT_PATH.write_text(
+        json.dumps(registry, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
 
     missing = [m for m in modules if m not in registry]
     print(f"Skill metadata registry generated: {OUTPUT_PATH}")

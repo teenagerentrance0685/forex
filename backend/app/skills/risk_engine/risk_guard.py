@@ -1,4 +1,5 @@
 """Risk guard skill implementation for the unified skill registry."""
+
 from __future__ import annotations
 
 from app.core.models import MarketTick, RiskDecision
@@ -25,7 +26,10 @@ class RiskGuardAgent:
             action = "FREEZE"
             reasons.append("drawdown exceeded")
 
-        if tick is not None and tick.spread > self.settings.max_spread_points * self.settings.tick_size:
+        if (
+            tick is not None
+            and tick.spread > self.settings.max_spread_points * self.settings.tick_size
+        ):
             allowed = False
             action = "PAUSE_NEW_ENTRY"
             reasons.append("spread exceeded")
@@ -33,7 +37,9 @@ class RiskGuardAgent:
         return RiskDecision(allowed=allowed, action=action, reasons=reasons)
 
 
-def evaluate_risk(state, settings, tick: MarketTick | None = None, api_latency_ms: int = 0):
+def evaluate_risk(
+    state, settings, tick: MarketTick | None = None, api_latency_ms: int = 0
+):
     """Compatibility wrapper for the risk engine adapter."""
     return RiskGuardAgent(settings).evaluate(state, tick)
 

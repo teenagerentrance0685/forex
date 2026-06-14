@@ -14,7 +14,7 @@ Rules:
 - MONITOR if memory_score < 0.4
 """
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from enum import Enum
 
 from backend.app.intelligence.context_manager import TradingContext
@@ -22,6 +22,7 @@ from backend.app.intelligence.context_manager import TradingContext
 
 class TradePermission(Enum):
     """Trade permission levels."""
+
     ALLOWED = "allowed"
     REDUCED_SIZE = "reduced_size"  # 50% of normal
     MONITOR_ONLY = "monitor_only"  # No trading, just analysis
@@ -30,6 +31,7 @@ class TradePermission(Enum):
 
 class ContextRiskLevel(Enum):
     """Risk level based on context."""
+
     SAFE = "safe"
     CAUTION = "caution"
     RISKY = "risky"
@@ -39,9 +41,9 @@ class ContextRiskLevel(Enum):
 class NoTradeIntegration:
     """
     Integrate Intelligence OS with NO_TRADE_ENGINE.
-    
+
     Purpose: Block or restrict trading based on context awareness.
-    
+
     Constraints:
     ✓ Can block/restrict trades
     ✓ Can reduce position size
@@ -59,11 +61,11 @@ class NoTradeIntegration:
     ) -> Dict[str, Any]:
         """
         Evaluate if trading is permitted given context.
-        
+
         Args:
             context: Current trading context
             position_size: Requested position size
-            
+
         Returns:
             {
                 "permission": "allowed|reduced_size|monitor_only|blocked",
@@ -76,7 +78,7 @@ class NoTradeIntegration:
         reasons = []
         recommendations = []
         approved_size = position_size
-        
+
         # Check news risk first (critical blocker)
         if context.news_risk.value == "no_trade":
             return {
@@ -86,10 +88,12 @@ class NoTradeIntegration:
                 "risk_level": ContextRiskLevel.EXTREME.value,
                 "recommendations": ["Wait for news event to pass"],
             }
-        
+
         # Check extreme contexts
-        if (context.sentiment.value == "extreme_fear" and 
-            context.regime.value == "strong_bear"):
+        if (
+            context.sentiment.value == "extreme_fear"
+            and context.regime.value == "strong_bear"
+        ):
             return {
                 "permission": TradePermission.BLOCKED.value,
                 "approved_size": 0.0,
@@ -100,12 +104,14 @@ class NoTradeIntegration:
                     "Consider defensive strategies only",
                 ],
             }
-        
-        if (context.sentiment.value == "extreme_greed" and 
-            context.regime.value == "strong_bull"):
+
+        if (
+            context.sentiment.value == "extreme_greed"
+            and context.regime.value == "strong_bull"
+        ):
             reasons.append("Extreme greed in strong bull - high risk of reversal")
             recommendations.append("Use tighter stops")
-        
+
         # Check confidence
         if context.confidence < 0.4:
             approved_size = position_size * 0.5
@@ -114,7 +120,7 @@ class NoTradeIntegration:
         elif context.confidence < 0.6:
             approved_size = position_size * 0.75
             reasons.append("Medium context confidence - reducing size by 25%")
-        
+
         # Check memory score (historical success)
         if context.memory_score < 0.4:
             approved_size = approved_size * 0.8
@@ -122,7 +128,7 @@ class NoTradeIntegration:
             recommendations.append("Adjust strategy for this context")
         elif context.memory_score < 0.5:
             reasons.append("Below average performance in similar contexts")
-        
+
         # Check news risk
         if context.news_risk.value == "high":
             approved_size = approved_size * 0.8
@@ -131,7 +137,7 @@ class NoTradeIntegration:
         elif context.news_risk.value == "medium":
             reasons.append("Moderate economic news risk")
             recommendations.append("Monitor for sudden moves")
-        
+
         # Determine permission level
         if approved_size == 0.0:
             permission = TradePermission.BLOCKED
@@ -149,11 +155,13 @@ class NoTradeIntegration:
                 risk_level = ContextRiskLevel.SAFE
             else:
                 risk_level = ContextRiskLevel.CAUTION
-        
+
         return {
             "permission": permission.value,
             "approved_size": max(0.0, approved_size),
-            "size_multiplier": approved_size / position_size if position_size > 0 else 0.0,
+            "size_multiplier": (
+                approved_size / position_size if position_size > 0 else 0.0
+            ),
             "requested_size": position_size,
             "reasons": reasons,
             "risk_level": risk_level.value,
@@ -163,14 +171,14 @@ class NoTradeIntegration:
     def get_session_restrictions(self, context: TradingContext) -> Dict[str, Any]:
         """
         Get trading restrictions by session.
-        
+
         Different sessions have different characteristics:
         - Asia: Low volatility, trending
         - London: Volatile, news-prone
         - NY: Very active, mean-reverting
         """
         session = context.session.value
-        
+
         restrictions = {
             "asia": {
                 "allowed": True,
@@ -197,7 +205,7 @@ class NoTradeIntegration:
                 "caution": "Highest volatility, best liquidity",
             },
         }
-        
+
         return restrictions.get(session, restrictions["london"])
 
     def get_sentiment_adjustments(self, context: TradingContext) -> Dict[str, Any]:
@@ -205,7 +213,7 @@ class NoTradeIntegration:
         Get strategy adjustments for different sentiment levels.
         """
         sentiment = context.sentiment.value
-        
+
         adjustments = {
             "extreme_fear": {
                 "position_multiplier": 0.5,
@@ -243,7 +251,7 @@ class NoTradeIntegration:
                 "confidence": "Low - reversal risk",
             },
         }
-        
+
         return adjustments.get(sentiment, adjustments["neutral"])
 
     def format_decision(self, permission_data: Dict[str, Any]) -> str:
@@ -253,12 +261,14 @@ class NoTradeIntegration:
         permission = permission_data["permission"]
         approved_size = permission_data["approved_size"]
         multiplier = permission_data["size_multiplier"]
-        
+
         if permission == TradePermission.BLOCKED.value:
             return f"NO_TRADE: {'; '.join(permission_data['reasons'])}"
         elif permission == TradePermission.REDUCED_SIZE.value:
-            return (f"REDUCED_SIZE: {multiplier*100:.0f}% of normal "
-                   f"({permission_data['reasons'][0] if permission_data['reasons'] else ''})")
+            return (
+                f"REDUCED_SIZE: {multiplier*100:.0f}% of normal "
+                f"({permission_data['reasons'][0] if permission_data['reasons'] else ''})"
+            )
         elif permission == TradePermission.MONITOR_ONLY.value:
             return f"MONITOR_ONLY: {'; '.join(permission_data['reasons'])}"
         else:

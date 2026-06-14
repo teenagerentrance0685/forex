@@ -13,13 +13,17 @@ class SelfCorrectionEngine:
         filtered: list[dict[str, Any]] = []
         for candidate in candidates:
             if candidate.get("confidence", 0) >= 0.55:
-                filtered.append({
-                    **candidate,
-                    "status": "kept",
-                })
+                filtered.append(
+                    {
+                        **candidate,
+                        "status": "kept",
+                    }
+                )
             else:
-                filtered.append({
-                    **candidate,
-                    "status": "rejected",
-                })
+                filtered.append(
+                    {
+                        **candidate,
+                        "status": "rejected",
+                    }
+                )
         return filtered

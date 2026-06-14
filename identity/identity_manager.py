@@ -31,7 +31,9 @@ class IdentityManager:
         return checks
 
     def load_config(self, path: str | Path | None = None) -> Dict[str, Any]:
-        config_path = Path(path) if path else Path(__file__).resolve().parent / "config.yaml"
+        config_path = (
+            Path(path) if path else Path(__file__).resolve().parent / "config.yaml"
+        )
         if not config_path.exists():
             return {"error": "config not found"}
         data: Dict[str, Any] = {}
@@ -81,9 +83,19 @@ class IdentityManager:
                 except Exception:
                     continue
                 lowered = text.lower()
-                if "import yaml" in lowered or "pyyaml" in lowered or "from yaml" in lowered:
+                if (
+                    "import yaml" in lowered
+                    or "pyyaml" in lowered
+                    or "from yaml" in lowered
+                ):
                     violations["yaml_in_skills"].append(str(path))
-                if "open(" in text and (".yaml" in text or "'rules.yaml'" in text or '"rules.yaml"' in text or "'.yaml'" in text or '".yaml"' in text):
+                if "open(" in text and (
+                    ".yaml" in text
+                    or "'rules.yaml'" in text
+                    or '"rules.yaml"' in text
+                    or "'.yaml'" in text
+                    or '".yaml"' in text
+                ):
                     # crude check for opening yaml files
                     violations["file_open_in_skills"].append(str(path))
 
@@ -93,7 +105,9 @@ class IdentityManager:
                 text = path.read_text(encoding="utf-8")
             except Exception:
                 continue
-            if ".yaml" in text and ("open(" in text or "path(" in text.lower() or "read_text(" in text):
+            if ".yaml" in text and (
+                "open(" in text or "path(" in text.lower() or "read_text(" in text
+            ):
                 violations["files_reading_yaml_anywhere"].append(str(path))
 
         # 3) Scan backend agents for large Agent classes (possible business logic)
@@ -106,6 +120,7 @@ class IdentityManager:
                     continue
                 # find class declarations ending with Agent
                 import re
+
                 for m in re.finditer(r"class\s+(\w+Agent)\b", text):
                     start = m.start()
                     # estimate class length by lines until next class or EOF

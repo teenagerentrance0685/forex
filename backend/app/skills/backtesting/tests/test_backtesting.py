@@ -1,4 +1,8 @@
-from backend.app.skills.backtesting import BacktestEngine, calculate_statistics, generate_report
+from backend.app.skills.backtesting import (
+    BacktestEngine,
+    calculate_statistics,
+    generate_report,
+)
 from hooks.hook_manager import HookManager
 from hooks.schemas import HookContext, SignalHookResult
 
@@ -61,10 +65,14 @@ def test_after_backtest_hook_registration():
     manager.after_backtest_hooks.clear()
 
     def after_backtest_hook(context: HookContext) -> SignalHookResult:
-        return SignalHookResult(proceed=True, reasons=[context.event], metadata={"kind": "backtest"})
+        return SignalHookResult(
+            proceed=True, reasons=[context.event], metadata={"kind": "backtest"}
+        )
 
     manager.register_after_backtest_hook(after_backtest_hook)
-    results = manager.run_after_backtest(HookContext(event="after_backtest", payload={"ok": True}))
+    results = manager.run_after_backtest(
+        HookContext(event="after_backtest", payload={"ok": True})
+    )
 
     assert len(results) == 1
     assert results[0].reasons == ["after_backtest"]

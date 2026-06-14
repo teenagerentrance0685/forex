@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import Any
 
 
-def discover_weaknesses(statistics: dict[str, Any], regime_analysis: dict[str, Any]) -> list[str]:
+def discover_weaknesses(
+    statistics: dict[str, Any], regime_analysis: dict[str, Any]
+) -> list[str]:
     weaknesses: list[str] = []
 
     if statistics.get("trade_count", 0) < 20:
@@ -32,11 +34,17 @@ def generate_recommendations(weaknesses: list[str]) -> list[str]:
         if weakness == "low_sample_size":
             recommendations.append("Increase sample size before publishing results.")
         elif weakness == "high_drawdown":
-            recommendations.append("Reduce risk or add drawdown protection before live use.")
+            recommendations.append(
+                "Reduce risk or add drawdown protection before live use."
+            )
         elif weakness == "low_expectancy":
-            recommendations.append("Review entry and exit rules because expected value is not positive.")
+            recommendations.append(
+                "Review entry and exit rules because expected value is not positive."
+            )
         elif weakness == "poor_profit_factor":
-            recommendations.append("Filter low-quality setups and review transaction costs.")
+            recommendations.append(
+                "Filter low-quality setups and review transaction costs."
+            )
         elif weakness == "poor_risk_reward":
             recommendations.append("Improve stop-loss and take-profit balance.")
         elif weakness == "loss_streak_risk":
@@ -48,7 +56,9 @@ def generate_recommendations(weaknesses: list[str]) -> list[str]:
 
 
 def generate_report(result: dict[str, Any]) -> dict[str, Any]:
-    weaknesses = result.get("weaknesses") or discover_weaknesses(result.get("statistics", {}), result.get("regime_analysis", {}))
+    weaknesses = result.get("weaknesses") or discover_weaknesses(
+        result.get("statistics", {}), result.get("regime_analysis", {})
+    )
     return {
         "summary": {
             "win_rate": result.get("win_rate", 0.0),

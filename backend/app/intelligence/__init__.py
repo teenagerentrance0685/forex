@@ -29,8 +29,19 @@ Evolution Upgrade:
 Pattern discovery from trades + context → better evolution
 """
 
-from .intelligence_manager import IntelligenceManager, get_intelligence_manager, initialize_intelligence
-from .context_manager import ContextManager, TradingContext, MarketRegime, TradingSession, SentimentLevel, NewsRiskLevel
+from .intelligence_manager import (
+    IntelligenceManager,
+    get_intelligence_manager,
+    initialize_intelligence,
+)
+from .context_manager import (
+    ContextManager,
+    TradingContext,
+    MarketRegime,
+    TradingSession,
+    SentimentLevel,
+    NewsRiskLevel,
+)
 from .evidence_manager import EvidenceManager, Evidence, EvidenceType, ConfidenceLevel
 from .memory_integration import MemoryIntegration, ContextualTrade
 from .evolution_integration import EvolutionIntegration, ContextualPattern
@@ -46,7 +57,6 @@ __all__ = [
     "Evidence",
     "EvidenceType",
     "ConfidenceLevel",
-    
     # Integrations
     "MemoryIntegration",
     "ContextualTrade",
@@ -54,7 +64,6 @@ __all__ = [
     "ContextualPattern",
     "NoTradeIntegration",
     "TradePermission",
-    
     # Context models
     "TradingContext",
     "MarketRegime",
