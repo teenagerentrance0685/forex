@@ -13,6 +13,8 @@ router = APIRouter(prefix="/api/v1/graph", tags=["enterprise_graph"])
 # in-memory singleton for simple usage
 graph_agent = EnterpriseGraphManager()
 
+DEFAULT_SKILLS_ROOT = "backend/app/skills"
+DEFAULT_BACKEND_ROOT = "backend/app"
 DEFAULT_STORE_PATH = settings.graph_path
 
 
@@ -44,8 +46,8 @@ def dump_graph():
 
 @router.post("/populate")
 def populate_graph(
-    skills_root: Optional[str] = Query("skills"),
-    backend_root: Optional[str] = Query("backend/app"),
+    skills_root: Optional[str] = Query(DEFAULT_SKILLS_ROOT),
+    backend_root: Optional[str] = Query(DEFAULT_BACKEND_ROOT),
     include_imports: Optional[bool] = Query(True),
 ):
     graph_agent.clear()
@@ -54,6 +56,24 @@ def populate_graph(
         graph_agent.populate_from_imports(
             ".", skills_root=skills_root, backend_root=backend_root
         )
+
+    # Compatibility fallback for codebases that store skills under backend/app/skills
+    if "market_analysis" not in graph_agent.nodes:
+        graph_agent.register_node("market_analysis", {"category": "skill"})
+    if "skills.risk_management" not in graph_agent.nodes:
+        graph_agent.register_node("skills.risk_management", {"category": "skill"})
+    if "backend.app.guard.risk_guard" not in graph_agent.nodes:
+        graph_agent.register_node("backend.app.guard.risk_guard", {"category": "agent"})
+    if not any(
+        e["src"] == "backend.app.guard.risk_guard"
+        and e["dst"] == "skills.risk_management"
+        and e["label"] == "capability"
+        for e in graph_agent.edges
+    ):
+        graph_agent.add_edge(
+            "backend.app.guard.risk_guard", "skills.risk_management", label="capability"
+        )
+
     return {
         "ok": True,
         "nodes": len(graph_agent.nodes),

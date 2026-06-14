@@ -23,11 +23,22 @@ class IdentityManager:
         base = Path(base_path)
         checks: Dict[str, bool] = {}
         checks["backend_exists"] = (base / "backend").exists()
-        checks["skills_exists"] = (base / "skills").exists()
-        checks["memory_exists"] = (base / "memory").exists()
-        checks["governance_exists"] = (base / "governance").exists()
+        checks["skills_exists"] = (
+            (base / "skills").exists()
+            or (base / "backend" / "app" / "skills").exists()
+        )
+        checks["memory_exists"] = (
+            (base / "memory").exists()
+            or (base / "backend" / "app" / "memory").exists()
+        )
+        checks["governance_exists"] = (
+            (base / "governance").exists()
+            or (base / "backend" / "app" / "governance").exists()
+        )
         checks["hooks_exists"] = (base / "hooks").exists()
-        checks["tests_exists"] = (base / "tests").exists()
+        checks["tests_exists"] = (
+            (base / "tests").exists() or (base / "backend" / "app" / "tests").exists()
+        )
         return checks
 
     def load_config(self, path: str | Path | None = None) -> Dict[str, Any]:

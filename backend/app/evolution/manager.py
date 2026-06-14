@@ -3,10 +3,11 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from app.memory import MemoryManager
 from app.governance import GovernanceManager
+from hooks.hook_manager import HookManager
 
 from .pattern_discovery import PatternDiscoveryEngine
 from .strategy_evaluator import StrategyEvaluator
@@ -47,10 +48,60 @@ class EvolutionManager:
         self.self_correction_engine = SelfCorrectionEngine(self.memory_manager)
         self.regime_simulator = RegimeSimulator(self.memory_manager)
         self.winner_dna = WinnerDna(self.memory_manager)
+        self.hook_manager = HookManager()
+        self.before_signal_hooks = self.hook_manager.before_signal_hooks
+        self.after_signal_hooks = self.hook_manager.after_signal_hooks
+        self.before_trade_hooks = self.hook_manager.before_trade_hooks
+        self.after_trade_hooks = self.hook_manager.after_trade_hooks
+        self.before_close_hooks = self.hook_manager.before_close_hooks
+        self.after_close_hooks = self.hook_manager.after_close_hooks
+        self.after_backtest_hooks = self.hook_manager.after_backtest_hooks
         self.metrics_path = Path(
             metrics_path or "./backend/app/evolution/metrics/evolution_metrics.json"
         )
         self.metrics = EvolutionMetrics()
+
+    def register_before_signal_hook(self, hook: Callable[[Any], Any]) -> None:
+        self.hook_manager.register_before_signal_hook(hook)
+
+    def register_after_signal_hook(self, hook: Callable[[Any], Any]) -> None:
+        self.hook_manager.register_after_signal_hook(hook)
+
+    def register_before_trade_hook(self, hook: Callable[[Any], Any]) -> None:
+        self.hook_manager.register_before_trade_hook(hook)
+
+    def register_after_trade_hook(self, hook: Callable[[Any], Any]) -> None:
+        self.hook_manager.register_after_trade_hook(hook)
+
+    def register_before_close_hook(self, hook: Callable[[Any], Any]) -> None:
+        self.hook_manager.register_before_close_hook(hook)
+
+    def register_after_close_hook(self, hook: Callable[[Any], Any]) -> None:
+        self.hook_manager.register_after_close_hook(hook)
+
+    def register_after_backtest_hook(self, hook: Callable[[Any], Any]) -> None:
+        self.hook_manager.register_after_backtest_hook(hook)
+
+    def run_before_signal(self, context: dict[str, Any]) -> list[dict[str, Any]]:
+        return self.hook_manager.run_before_signal(context)
+
+    def run_after_signal(self, context: dict[str, Any]) -> list[dict[str, Any]]:
+        return self.hook_manager.run_after_signal(context)
+
+    def run_before_trade(self, context: dict[str, Any]) -> list[dict[str, Any]]:
+        return self.hook_manager.run_before_trade(context)
+
+    def run_after_trade(self, context: dict[str, Any]) -> list[dict[str, Any]]:
+        return self.hook_manager.run_after_trade(context)
+
+    def run_before_close(self, context: dict[str, Any]) -> list[dict[str, Any]]:
+        return self.hook_manager.run_before_close(context)
+
+    def run_after_close(self, context: dict[str, Any]) -> list[dict[str, Any]]:
+        return self.hook_manager.run_after_close(context)
+
+    def run_after_backtest(self, context: dict[str, Any]) -> list[dict[str, Any]]:
+        return self.hook_manager.run_after_backtest(context)
 
     def discover_patterns(self) -> list[dict[str, Any]]:
         patterns = self.pattern_engine.discover()

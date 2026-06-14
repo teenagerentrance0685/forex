@@ -93,14 +93,19 @@ class EnterpriseGraphManager:
                     {"category": "agent", "source": str(path.relative_to(base))},
                 )
                 for imported in self._parse_imports(text, module_id):
-                    label = self._classify_import(imported, text)
-                    if imported.startswith("skills."):
-                        skill_node = import_to_skill_node(imported)
+                    normalized_import = imported
+                    if imported.startswith("backend.app.skills."):
+                        normalized_import = "skills." + imported.split(".", 4)[-1]
+                    elif imported.startswith("app.skills."):
+                        normalized_import = "skills." + imported.split(".", 2)[-1]
+                    label = self._classify_import(normalized_import, text)
+                    if normalized_import.startswith("skills."):
+                        skill_node = import_to_skill_node(normalized_import)
                         self.register_node(skill_node, {"category": "skill"})
                         self.add_edge(module_id, skill_node, label=label)
-                    elif imported.startswith("app."):
-                        self.register_node(imported, {"category": "runtime"})
-                        self.add_edge(module_id, imported, label=label)
+                    elif normalized_import.startswith("app."):
+                        self.register_node(normalized_import, {"category": "runtime"})
+                        self.add_edge(module_id, normalized_import, label=label)
                 for data_node in self._extract_data_dependencies(text, base):
                     self.register_node(data_node, {"category": "data"})
                     self.add_edge(module_id, data_node, label="data")

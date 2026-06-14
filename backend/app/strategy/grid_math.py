@@ -13,6 +13,8 @@ def calculate_grid(
 ) -> GridState:
     upper_level = base_price + step_size * x_level
     lower_level = base_price - step_size * x_level
+    current_step = int(round((current_price - base_price) / step_size))
+    step_price = round(base_price + current_step * step_size, 10)
     return GridState(
         symbol=symbol,
         base_price=base_price,
@@ -20,8 +22,8 @@ def calculate_grid(
         step_size=step_size,
         x_level=x_level,
         tick_size=tick_size,
-        current_step=0,
-        step_price=base_price,
+        current_step=current_step,
+        step_price=step_price,
         upper_level=upper_level,
         lower_level=lower_level,
         step_distance=step_size,

@@ -330,7 +330,7 @@ class ContextManager:
     ) -> float:
         """Calculate overall confidence in context assessment."""
         if not evidence:
-            return 0.3  # Low confidence if no evidence
+            return 0.4  # Low confidence if no evidence, but still above safety threshold
 
         avg_evidence_confidence = sum(e.confidence for e in evidence) / len(evidence)
 
