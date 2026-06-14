@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+backend/.venv/
+venv/
+
+# Byte-compiled / build directories
+build/
+dist/
+
+# IDE configs
+.vscode/
+
+# Generated winners (test artifacts)
+backend/app/memory/winners/
+
+# Node modules (frontend)
+node_modules/
